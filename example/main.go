@@ -11,7 +11,7 @@ func main() {
 	app := sweetygo.New(root)
 
 	app.USE(sweetygo.Logger())
-	app.GET("/static/:files", staticServer)
+	app.GET("/static/*files", staticServer)
 	app.GET("/", home)
 	app.POST("/api", home)
 	app.GET("/usr/:user/:sex/:age", hello)

@@ -9,20 +9,18 @@ import (
 // Router is based on Radix Tree
 // rootHandler is for runMiddleware
 type Router struct {
-	tree        *node
+	tree        *Trie
 	rootHandler HandlerFunc
 	middlewares []HandlerFunc
 }
 
 // New Router
 func New(root HandlerFunc) *Router {
-	node := node{
-		children:  make([]*node, 0),
-		prefix:    "/",
-		hasParams: false,
+	tree := Trie{
+		component: "/",
 		methods:   make(map[string]HandlerFunc),
 	}
-	return &Router{tree: &node,
+	return &Router{tree: &tree,
 		middlewares: make([]HandlerFunc, 0),
 		rootHandler: root}
 }
@@ -63,9 +61,9 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	req.ParseForm()
 	params := req.Form
 
-	node, _ := r.tree.traverse(strings.Split(req.URL.Path, "/")[1:], params)
-	if handler := node.methods[req.Method]; handler != nil {
-		runMiddleware(w, req, mwareList(r.middlewares, handler))
+	node := r.tree.Search(strings.Split(req.URL.Path, "/")[1:], params)
+	if node != nil && node.methods[req.Method] != nil {
+		runMiddleware(w, req, mwareList(r.middlewares, node.methods[req.Method]))
 	} else {
 		runMiddleware(w, req, mwareList(r.middlewares, r.rootHandler))
 	}
@@ -82,7 +80,7 @@ func (r *Router) Handle(method, path string, handler HandlerFunc) {
 	if len(path) < 1 || path[0] != '/' {
 		panic("Path should be like '/sweety/go'")
 	}
-	r.tree.addNode(method, path, handler)
+	r.tree.Insert(method, path, handler)
 }
 
 // GET register GET request handler
