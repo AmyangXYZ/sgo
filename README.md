@@ -5,8 +5,9 @@ SweetyGo is a simple, light and fast Web framework written in Go.
 ## Features
 
 - Pretty and fast router - based on radix tree
-- Middleware Support in
+- Middleware Support
 - Friendly to REST API
+- No regexp or reflect
 - Inspired by many other excellent Go Web framework and Express.js
 
 ## Installation
