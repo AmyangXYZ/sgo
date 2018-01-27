@@ -9,9 +9,6 @@ import (
 // HandlerFunc context handler func
 type HandlerFunc func(*Context)
 
-// Middleware handler
-type Middleware interface{}
-
 // SweetyGo is Suuuuuuuuper Sweetie!
 type SweetyGo struct {
 	tree            *Trie
@@ -39,10 +36,10 @@ func New() *SweetyGo {
 }
 
 // USE middlewares for SweetyGo
-func (s *SweetyGo) USE(m ...Middleware) {
-	for i := range m {
-		if m[i] != nil {
-			s.middlewares = append(s.middlewares, wrapMiddleware(m[i]))
+func (s *SweetyGo) USE(middlewares ...HandlerFunc) {
+	for i := range middlewares {
+		if middlewares[i] != nil {
+			s.middlewares = append(s.middlewares, middlewares[i])
 		}
 	}
 }

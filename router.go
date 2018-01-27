@@ -34,34 +34,6 @@ func (s *SweetyGo) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.pool.Put(c)
 }
 
-// wrapMiddleware wraps middleware.
-func wrapMiddleware(m Middleware) HandlerFunc {
-	switch m := m.(type) {
-	case HandlerFunc:
-		return m
-	case func(*Context):
-		return m
-	case http.Handler, http.HandlerFunc:
-		return WrapHandlerFunc(func(c *Context) {
-			m.(http.Handler).ServeHTTP(c.Resp, c.Req)
-		})
-	case func(http.ResponseWriter, *http.Request):
-		return WrapHandlerFunc(func(c *Context) {
-			m(c.Resp, c.Req)
-		})
-	default:
-		panic("unknown middleware")
-	}
-}
-
-// WrapHandlerFunc wrap for context handler chain
-func WrapHandlerFunc(h HandlerFunc) HandlerFunc {
-	return func(c *Context) {
-		h(c)
-		c.Next()
-	}
-}
-
 // Handle register custom METHOD request HandlerFunc
 func (s *SweetyGo) Handle(method, path string, handler HandlerFunc) {
 	if len(path) < 1 || path[0] != '/' {
