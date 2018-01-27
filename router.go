@@ -1,119 +1,69 @@
 package sweetygo
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 )
 
-// Router is based on Radix Tree
-// rootHandler is for runMiddleware
-type Router struct {
-	tree        *Trie
-	rootHandler HandlerFunc
-	middlewares []HandlerFunc
+// NotFoundHandler .
+func NotFoundHandler(c *Context) {
+	http.NotFound(c.Resp, c.Req)
 }
 
-// New Router
-func New(root HandlerFunc) *Router {
-	tree := Trie{
-		component: "/",
-		methods:   make(map[string]HandlerFunc),
-	}
-	return &Router{tree: &tree,
-		middlewares: make([]HandlerFunc, 0),
-		rootHandler: root}
-}
+func (s *SweetyGo) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	c := s.pool.Get().(*Context)
+	c.Init(w, r)
 
-// USE middlewares for router
-func (r *Router) USE(middleware ...HandlerFunc) {
-	r.middlewares = append(r.middlewares, middleware...)
-}
-
-func runMiddleware(w http.ResponseWriter, req *http.Request, middleware Middleware) {
-	middleware.ServeHTTP(w, req)
-}
-
-// build a middleware list
-func mwareList(middleware []HandlerFunc, handler HandlerFunc) Middleware {
-	var next Middleware
-
-	if len(middleware) == 0 {
-		return finalHandler(handler)
-	} else if len(middleware) > 1 {
-		next = mwareList(middleware[1:], handler)
+	node := s.tree.Search(strings.Split(r.URL.Path, "/")[1:], c.Params())
+	if node != nil && node.methods[r.Method] != nil {
+		c.handlers = append(c.handlers, node.methods[r.Method])
 	} else {
-		next = finalHandler(handler)
+		c.handlers = append(c.handlers, s.notFoundHandler)
 	}
 
-	return Middleware{middleware[0], &next}
-}
-
-func finalHandler(handler HandlerFunc) Middleware {
-	return Middleware{
-		HandlerFunc(func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-			handler(w, r, next)
-		}),
-		&Middleware{}}
-}
-
-func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	req.ParseForm()
-	params := req.Form
-
-	node := r.tree.Search(strings.Split(req.URL.Path, "/")[1:], params)
-	if node != nil && node.methods[req.Method] != nil {
-		runMiddleware(w, req, mwareList(r.middlewares, node.methods[req.Method]))
-	} else {
-		runMiddleware(w, req, mwareList(r.middlewares, r.rootHandler))
-	}
-}
-
-// RunServer at the given addr
-func (r *Router) RunServer(addr string) {
-	fmt.Printf("*SweetyGo* -- Listen on %s\n", addr)
-	http.ListenAndServe(addr, r)
+	c.Next()
+	s.pool.Put(c)
 }
 
 // Handle register custom METHOD request HandlerFunc
-func (r *Router) Handle(method, path string, handler HandlerFunc) {
+func (s *SweetyGo) Handle(method, path string, handler HandlerFunc) {
 	if len(path) < 1 || path[0] != '/' {
 		panic("Path should be like '/sweety/go'")
 	}
-	r.tree.Insert(method, path, handler)
+	s.tree.Insert(method, path, handler)
 }
 
 // GET register GET request handler
-func (r *Router) GET(path string, handler HandlerFunc) {
-	r.Handle("GET", path, handler)
+func (s *SweetyGo) GET(path string, handler HandlerFunc) {
+	s.Handle("GET", path, handler)
 }
 
 // HEAD register HEAD request handler
-func (r *Router) HEAD(path string, handler HandlerFunc) {
-	r.Handle("HEAD", path, handler)
+func (s *SweetyGo) HEAD(path string, handler HandlerFunc) {
+	s.Handle("HEAD", path, handler)
 }
 
 // OPTIONS register OPTIONS request handler
-func (r *Router) OPTIONS(path string, handler HandlerFunc) {
-	r.Handle("OPTIONS", path, handler)
+func (s *SweetyGo) OPTIONS(path string, handler HandlerFunc) {
+	s.Handle("OPTIONS", path, handler)
 }
 
 // POST register POST request handler
-func (r *Router) POST(path string, handler HandlerFunc) {
-	r.Handle("POST", path, handler)
+func (s *SweetyGo) POST(path string, handler HandlerFunc) {
+	s.Handle("POST", path, handler)
 }
 
 // PUT register PUT request handler
-func (r *Router) PUT(path string, handler HandlerFunc) {
-	r.Handle("PUT", path, handler)
+func (s *SweetyGo) PUT(path string, handler HandlerFunc) {
+	s.Handle("PUT", path, handler)
 }
 
 // PATCH register PATCH request HandlerFunc
-func (r *Router) PATCH(path string, handler HandlerFunc) {
-	r.Handle("PATCH", path, handler)
+func (s *SweetyGo) PATCH(path string, handler HandlerFunc) {
+	s.Handle("PATCH", path, handler)
 }
 
 // DELETE register DELETE request handler
-func (r *Router) DELETE(path string, handler HandlerFunc) {
-	r.Handle("DELETE", path, handler)
+func (s *SweetyGo) DELETE(path string, handler HandlerFunc) {
+	s.Handle("DELETE", path, handler)
 }

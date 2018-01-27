@@ -1,22 +1,50 @@
 package sweetygo
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
+	"sync"
+)
 
-type Handler interface {
-	ServeHTTP(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc)
+// HandlerFunc context handler func
+type HandlerFunc func(*Context)
+
+// Middleware handler
+type Middleware interface{}
+
+// SweetyGo is Suuuuuuuuper Sweetie!
+type SweetyGo struct {
+	tree            *Trie
+	pool            sync.Pool
+	notFoundHandler HandlerFunc
+	middlewares     []HandlerFunc
 }
 
-type HandlerFunc func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc)
-
-type Middleware struct {
-	handler Handler
-	next    *Middleware
+// New SweetyGo App
+func New() *SweetyGo {
+	tree := &Trie{
+		component: "/",
+		methods:   make(map[string]HandlerFunc),
+	}
+	s := &SweetyGo{tree: tree,
+		notFoundHandler: NotFoundHandler,
+		middlewares:     make([]HandlerFunc, 0),
+	}
+	s.pool = sync.Pool{
+		New: func() interface{} {
+			return NewContext(s)
+		},
+	}
+	return s
 }
 
-func (h HandlerFunc) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-	h(w, r, next)
+// USE middlewares for SweetyGo
+func (s *SweetyGo) USE(middleware ...HandlerFunc) {
+	s.middlewares = append(s.middlewares, middleware...)
 }
 
-func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	m.handler.ServeHTTP(w, r, m.next.ServeHTTP)
+// RunServer at the given addr
+func (s *SweetyGo) RunServer(addr string) {
+	fmt.Printf("*SweetyGo* -- Listen on %s\n", addr)
+	http.ListenAndServe(addr, s)
 }
