@@ -6,73 +6,73 @@ import (
 )
 
 // NotFoundHandler .
-func NotFoundHandler(c *Context) {
-	http.NotFound(c.Resp, c.Req)
+func NotFoundHandler(ctx *Context) {
+	http.NotFound(ctx.Resp, ctx.Req)
 }
 
 // Static .
-func (s *SweetyGo) Static(path, dir string) {
-	StaticServer := func(c *Context) {
+func (sg *SweetyGo) Static(path, dir string) {
+	StaticServer := func(ctx *Context) {
 		staticHandle := http.StripPrefix(path,
 			http.FileServer(http.Dir(dir)))
-		staticHandle.ServeHTTP(c.Resp, c.Req)
+		staticHandle.ServeHTTP(ctx.Resp, ctx.Req)
 	}
-	s.GET(path+"/*files", StaticServer)
+	sg.GET(path+"/*files", StaticServer)
 }
 
-func (s *SweetyGo) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	c := s.pool.Get().(*Context)
-	c.Init(w, r)
+func (sg *SweetyGo) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	ctx := sg.pool.Get().(*Context)
+	ctx.Init(w, r)
 
-	node := s.tree.Search(strings.Split(r.URL.Path, "/")[1:], c.Params())
+	node := sg.tree.Search(strings.Split(r.URL.Path, "/")[1:], ctx.Params())
 	if node != nil && node.methods[r.Method] != nil {
-		c.handlers = append(c.handlers, node.methods[r.Method])
+		ctx.handlers = append(ctx.handlers, node.methods[r.Method])
 	} else {
-		c.handlers = append(c.handlers, s.notFoundHandler)
+		ctx.handlers = append(ctx.handlers, sg.notFoundHandler)
 	}
-	c.Next()
-	s.pool.Put(c)
+	ctx.Next()
+	sg.pool.Put(ctx)
 }
 
 // Handle register custom METHOD request HandlerFunc
-func (s *SweetyGo) Handle(method, path string, handler HandlerFunc) {
+func (sg *SweetyGo) Handle(method, path string, handler HandlerFunc) {
 	if len(path) < 1 || path[0] != '/' {
 		panic("Path should be like '/sweety/go'")
 	}
-	s.tree.Insert(method, path, handler)
+	sg.tree.Insert(method, path, handler)
 }
 
 // GET register GET request handler
-func (s *SweetyGo) GET(path string, handler HandlerFunc) {
-	s.Handle("GET", path, handler)
+func (sg *SweetyGo) GET(path string, handler HandlerFunc) {
+	sg.Handle("GET", path, handler)
 }
 
 // HEAD register HEAD request handler
-func (s *SweetyGo) HEAD(path string, handler HandlerFunc) {
-	s.Handle("HEAD", path, handler)
+func (sg *SweetyGo) HEAD(path string, handler HandlerFunc) {
+	sg.Handle("HEAD", path, handler)
 }
 
 // OPTIONS register OPTIONS request handler
-func (s *SweetyGo) OPTIONS(path string, handler HandlerFunc) {
-	s.Handle("OPTIONS", path, handler)
+func (sg *SweetyGo) OPTIONS(path string, handler HandlerFunc) {
+	sg.Handle("OPTIONS", path, handler)
 }
 
 // POST register POST request handler
-func (s *SweetyGo) POST(path string, handler HandlerFunc) {
-	s.Handle("POST", path, handler)
+func (sg *SweetyGo) POST(path string, handler HandlerFunc) {
+	sg.Handle("POST", path, handler)
 }
 
 // PUT register PUT request handler
-func (s *SweetyGo) PUT(path string, handler HandlerFunc) {
-	s.Handle("PUT", path, handler)
+func (sg *SweetyGo) PUT(path string, handler HandlerFunc) {
+	sg.Handle("PUT", path, handler)
 }
 
 // PATCH register PATCH request HandlerFunc
-func (s *SweetyGo) PATCH(path string, handler HandlerFunc) {
-	s.Handle("PATCH", path, handler)
+func (sg *SweetyGo) PATCH(path string, handler HandlerFunc) {
+	sg.Handle("PATCH", path, handler)
 }
 
 // DELETE register DELETE request handler
-func (s *SweetyGo) DELETE(path string, handler HandlerFunc) {
-	s.Handle("DELETE", path, handler)
+func (sg *SweetyGo) DELETE(path string, handler HandlerFunc) {
+	sg.Handle("DELETE", path, handler)
 }

@@ -23,29 +23,29 @@ func New() *SweetyGo {
 		component: "/",
 		methods:   make(map[string]HandlerFunc),
 	}
-	s := &SweetyGo{tree: tree,
+	sg := &SweetyGo{tree: tree,
 		notFoundHandler: NotFoundHandler,
 		middlewares:     make([]HandlerFunc, 0),
 	}
-	s.pool = sync.Pool{
+	sg.pool = sync.Pool{
 		New: func() interface{} {
-			return NewContext(nil, nil, s)
+			return NewContext(nil, nil, sg)
 		},
 	}
-	return s
+	return sg
 }
 
 // USE middlewares for SweetyGo
-func (s *SweetyGo) USE(middlewares ...HandlerFunc) {
+func (sg *SweetyGo) USE(middlewares ...HandlerFunc) {
 	for i := range middlewares {
 		if middlewares[i] != nil {
-			s.middlewares = append(s.middlewares, middlewares[i])
+			sg.middlewares = append(sg.middlewares, middlewares[i])
 		}
 	}
 }
 
 // RunServer at the given addr
-func (s *SweetyGo) RunServer(addr string) {
+func (sg *SweetyGo) RunServer(addr string) {
 	fmt.Printf("*SweetyGo* -- Listen on %s\n", addr)
-	http.ListenAndServe(addr, s)
+	http.ListenAndServe(addr, sg)
 }

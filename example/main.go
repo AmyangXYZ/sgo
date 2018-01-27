@@ -18,13 +18,13 @@ func main() {
 	app.RunServer(":16311")
 }
 
-func home(c *sweetygo.Context) {
-	c.Resp.WriteHeader(200)
-	fmt.Fprintf(c.Resp, "Welcome \n")
+func home(ctx *sweetygo.Context) {
+	ctx.Resp.WriteHeader(200)
+	fmt.Fprintf(ctx.Resp, "Welcome \n")
 }
 
-func hello(c *sweetygo.Context) {
-	params := c.Params()
-	c.Resp.WriteHeader(200)
-	fmt.Fprintf(c.Resp, "Hello %s\n", params["user"][0])
+func hello(ctx *sweetygo.Context) {
+	params := ctx.Params()
+	ctx.Resp.WriteHeader(200)
+	fmt.Fprintf(ctx.Resp, "Hello %s\n", params["user"][0])
 }
