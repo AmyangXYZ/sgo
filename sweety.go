@@ -52,31 +52,3 @@ func (s *SweetyGo) RunServer(addr string) {
 	fmt.Printf("*SweetyGo* -- Listen on %s\n", addr)
 	http.ListenAndServe(addr, s)
 }
-
-// wrapMiddleware wraps middleware.
-func wrapMiddleware(m Middleware) HandlerFunc {
-	switch m := m.(type) {
-	case HandlerFunc:
-		return m
-	case func(*Context):
-		return m
-	case http.Handler, http.HandlerFunc:
-		return WrapHandlerFunc(func(c *Context) {
-			m.(http.Handler).ServeHTTP(c.Resp, c.Req)
-		})
-	case func(http.ResponseWriter, *http.Request):
-		return WrapHandlerFunc(func(c *Context) {
-			m(c.Resp, c.Req)
-		})
-	default:
-		panic("unknown middleware")
-	}
-}
-
-// WrapHandlerFunc wrap for context handler chain
-func WrapHandlerFunc(h HandlerFunc) HandlerFunc {
-	return func(c *Context) {
-		h(c)
-		c.Next()
-	}
-}

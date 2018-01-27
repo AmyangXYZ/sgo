@@ -46,3 +46,8 @@ func (c *Context) Params() url.Values {
 	c.Req.ParseForm()
 	return c.Req.Form
 }
+
+// Redirect .
+func (c *Context) Redirect() {
+
+}

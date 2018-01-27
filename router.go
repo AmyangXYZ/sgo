@@ -10,6 +10,16 @@ func NotFoundHandler(c *Context) {
 	http.NotFound(c.Resp, c.Req)
 }
 
+// Static .
+func (s *SweetyGo) Static(path, dir string) {
+	StaticServer := func(c *Context) {
+		staticHandle := http.StripPrefix(path,
+			http.FileServer(http.Dir(dir)))
+		staticHandle.ServeHTTP(c.Resp, c.Req)
+	}
+	s.GET(path+"/*files", StaticServer)
+}
+
 func (s *SweetyGo) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	c := s.pool.Get().(*Context)
 	c.Init(w, r)
@@ -22,6 +32,34 @@ func (s *SweetyGo) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	c.Next()
 	s.pool.Put(c)
+}
+
+// wrapMiddleware wraps middleware.
+func wrapMiddleware(m Middleware) HandlerFunc {
+	switch m := m.(type) {
+	case HandlerFunc:
+		return m
+	case func(*Context):
+		return m
+	case http.Handler, http.HandlerFunc:
+		return WrapHandlerFunc(func(c *Context) {
+			m.(http.Handler).ServeHTTP(c.Resp, c.Req)
+		})
+	case func(http.ResponseWriter, *http.Request):
+		return WrapHandlerFunc(func(c *Context) {
+			m(c.Resp, c.Req)
+		})
+	default:
+		panic("unknown middleware")
+	}
+}
+
+// WrapHandlerFunc wrap for context handler chain
+func WrapHandlerFunc(h HandlerFunc) HandlerFunc {
+	return func(c *Context) {
+		h(c)
+		c.Next()
+	}
 }
 
 // Handle register custom METHOD request HandlerFunc

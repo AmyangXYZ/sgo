@@ -11,11 +11,12 @@ func main() {
 
 	app.USE(sweetygo.Logger())
 	// app.GET("/static/*files", staticServer)
+	app.Static("/static", "/home/amyang/Projects/SweetyGo/example/static")
 	app.GET("/", home)
 	app.POST("/api", home)
 	app.GET("/usr/:user/:sex/:age", hello)
 
-	app.RunServer(":8080")
+	app.RunServer(":16311")
 }
 
 func home(c *sweetygo.Context) {
@@ -24,6 +25,7 @@ func home(c *sweetygo.Context) {
 }
 
 func hello(c *sweetygo.Context) {
+	params := c.Params()
 	c.Resp.WriteHeader(200)
-	fmt.Fprintf(c.Resp, "Hello %s\n", c.Params()["user"][0])
+	fmt.Fprintf(c.Resp, "Hello %s\n", params["user"][0])
 }
