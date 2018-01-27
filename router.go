@@ -20,7 +20,6 @@ func (s *SweetyGo) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	} else {
 		c.handlers = append(c.handlers, s.notFoundHandler)
 	}
-
 	c.Next()
 	s.pool.Put(c)
 }

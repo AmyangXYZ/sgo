@@ -9,7 +9,7 @@ import (
 func main() {
 	app := sweetygo.New()
 
-	// app.USE(sweetygo.Logger())
+	app.USE(sweetygo.Logger())
 	// app.GET("/static/*files", staticServer)
 	app.GET("/", home)
 	app.POST("/api", home)
@@ -18,12 +18,12 @@ func main() {
 	app.RunServer(":8080")
 }
 
-func home(c *Context) {
+func home(c *sweetygo.Context) {
 	c.Resp.WriteHeader(200)
 	fmt.Fprintf(c.Resp, "Welcome \n")
 }
 
-func hello(c *Context) {
+func hello(c *sweetygo.Context) {
 	c.Resp.WriteHeader(200)
-	fmt.Fprintf(c.Resp, "Hello %s\n", c.Params["user"][0])
+	fmt.Fprintf(c.Resp, "Hello %s\n", c.Params()["user"][0])
 }
