@@ -20,8 +20,6 @@ SweetyGo is a simple, light and fast Web framework written in Go.
 package main
 
 import (
-	"fmt"
-
 	"github.com/AmyangXYZ/sweetygo"
 )
 
@@ -37,15 +35,18 @@ func main() {
 	app.RunServer(":16311")
 }
 
-func home(c *sweetygo.Context) {
-	c.Resp.WriteHeader(200)
-	fmt.Fprintf(c.Resp, "Welcome \n")
+func home(ctx *sweetygo.Context) {
+	ctx.HTML(200, "Welcome\n")
 }
 
-func hello(c *sweetygo.Context) {
-	params := c.Params()
-	c.Resp.WriteHeader(200)
-	fmt.Fprintf(c.Resp, "Hello %s\n", params["user"][0])
+func api(ctx *sweetygo.Context) {
+	ctx.JSON(200, "uid: 001")
+}
+
+func hello(ctx *sweetygo.Context) {
+	params := ctx.Params()
+	body := "Hello" + params["usr"][0]
+	ctx.HTML(200, body)
 }
 ```
 
@@ -53,6 +54,6 @@ func hello(c *sweetygo.Context) {
 
 ## TODOs
 
-- [ ] Context
+- [ ] Session
+- [ ] Some built-in Security Middleware
 - [ ] Unit Tests
-- [ ] Built-in StaticServer

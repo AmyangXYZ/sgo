@@ -10,12 +10,12 @@ import (
 // Logger is a built-in middleware
 func Logger() HandlerFunc {
 	logger := log.New(os.Stdout, "*SweetyGo*", 0)
-	return func(c *Context) {
+	return func(ctx *Context) {
 		start := time.Now()
-		c.Next()
+		ctx.Next()
 		end := time.Since(start)
-		logger.Printf(" -- %s - [%v] \"%s %s\" %d - %v",
-			strings.Split(c.Req.RemoteAddr, ":")[0], start.Format("2006-01-02 15:04:05"),
-			c.Req.Method, c.Req.URL.Path, c.Resp.status, end)
+		logger.Printf(" -- %s - [%v] \"%s %s %d\" \"%s\" \"%s\" - %v",
+			strings.Split(ctx.Req.RemoteAddr, ":")[0], start.Format("2006-01-02 15:04:05"),
+			ctx.Method(), ctx.URL(), ctx.Resp.status, ctx.Referer(), ctx.UserAgent(), end)
 	}
 }

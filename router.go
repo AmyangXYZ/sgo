@@ -10,6 +10,11 @@ func NotFoundHandler(ctx *Context) {
 	http.NotFound(ctx.Resp, ctx.Req)
 }
 
+// MethodNotAllowedHandler .
+func MethodNotAllowedHandler(ctx *Context) {
+	http.Error(ctx.Resp, "Method Not Allowed", 405)
+}
+
 // Static .
 func (sg *SweetyGo) Static(path, dir string) {
 	StaticServer := func(ctx *Context) {
@@ -21,17 +26,20 @@ func (sg *SweetyGo) Static(path, dir string) {
 }
 
 func (sg *SweetyGo) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	ctx := sg.pool.Get().(*Context)
+	ctx := sg.Pool.Get().(*Context)
 	ctx.Init(w, r)
 
-	node := sg.tree.Search(strings.Split(r.URL.Path, "/")[1:], ctx.Params())
+	node := sg.Tree.Search(strings.Split(r.URL.Path, "/")[1:], ctx.Params())
 	if node != nil && node.methods[r.Method] != nil {
 		ctx.handlers = append(ctx.handlers, node.methods[r.Method])
+	} else if node != nil && node.methods[r.Method] == nil {
+		ctx.handlers = append(ctx.handlers, sg.MethodNotAllowedHandler)
 	} else {
-		ctx.handlers = append(ctx.handlers, sg.notFoundHandler)
+		ctx.handlers = append(ctx.handlers, sg.NotFoundHandler)
 	}
+
 	ctx.Next()
-	sg.pool.Put(ctx)
+	sg.Pool.Put(ctx)
 }
 
 // Handle register custom METHOD request HandlerFunc
@@ -39,7 +47,7 @@ func (sg *SweetyGo) Handle(method, path string, handler HandlerFunc) {
 	if len(path) < 1 || path[0] != '/' {
 		panic("Path should be like '/sweety/go'")
 	}
-	sg.tree.Insert(method, path, handler)
+	sg.Tree.Insert(method, path, handler)
 }
 
 // GET register GET request handler

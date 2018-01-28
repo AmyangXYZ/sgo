@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/AmyangXYZ/sweetygo"
 )
 
@@ -19,12 +17,15 @@ func main() {
 }
 
 func home(ctx *sweetygo.Context) {
-	ctx.Resp.WriteHeader(200)
-	fmt.Fprintf(ctx.Resp, "Welcome \n")
+	ctx.HTML(200, "Welcome\n")
+}
+
+func api(ctx *sweetygo.Context) {
+	ctx.JSON(200, "uid: 001")
 }
 
 func hello(ctx *sweetygo.Context) {
 	params := ctx.Params()
-	ctx.Resp.WriteHeader(200)
-	fmt.Fprintf(ctx.Resp, "Hello %s\n", params["user"][0])
+	body := "Hello" + params["usr"][0]
+	ctx.HTML(200, body)
 }
