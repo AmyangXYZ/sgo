@@ -29,7 +29,7 @@ func main() {
 	app.USE(sweetygo.Logger())
 	app.Static("/static", "/home/amyang/Projects/SweetyGo/example/static")
 	app.GET("/", home)
-	app.GET("/api", api)
+	app.POST("/api", api)
 	app.GET("/usr/:user/:sex/:age", hello)
 
 	app.RunServer(":16311")
@@ -56,5 +56,6 @@ func hello(ctx *sweetygo.Context) {
 ## TODOs
 
 - [ ] Session
+- [ ] Render
 - [ ] Some built-in Security Middleware
 - [ ] Unit Tests

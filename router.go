@@ -29,7 +29,7 @@ func (sg *SweetyGo) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := sg.Pool.Get().(*Context)
 	ctx.Init(w, r)
 
-	node := sg.Tree.Search(strings.Split(r.URL.Path, "/")[1:], ctx.Params())
+	node := sg.Tree.Search(strings.Split(r.URL.Path, "/")[1:], ctx.ParseForm())
 	if node != nil && node.methods[r.Method] != nil {
 		ctx.handlers = append(ctx.handlers, node.methods[r.Method])
 	} else if node != nil && node.methods[r.Method] == nil {

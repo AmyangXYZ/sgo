@@ -10,7 +10,7 @@ func main() {
 	app.USE(sweetygo.Logger())
 	app.Static("/static", "/home/amyang/Projects/SweetyGo/example/static")
 	app.GET("/", home)
-	app.GET("/api", api)
+	app.POST("/api", api)
 	app.GET("/usr/:user/:sex/:age", hello)
 
 	app.RunServer(":16311")
@@ -25,7 +25,7 @@ func api(ctx *sweetygo.Context) {
 }
 
 func hello(ctx *sweetygo.Context) {
-	params := ctx.Params()
-	body := "Hello" + params["usr"][0]
+	params := ctx.ParseForm()
+	body := "Hello " + params["user"][0]
 	ctx.HTML(200, body)
 }

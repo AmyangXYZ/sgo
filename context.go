@@ -45,8 +45,8 @@ func (ctx *Context) Next() {
 	}
 }
 
-// Params returns route params
-func (ctx *Context) Params() url.Values {
+// ParseForm returns route params
+func (ctx *Context) ParseForm() url.Values {
 	ctx.Req.ParseForm()
 	return ctx.Req.Form
 }
