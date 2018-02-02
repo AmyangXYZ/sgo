@@ -18,10 +18,12 @@ type Templates struct {
 
 // NewTemplates .
 func NewTemplates(rootDir string) *Templates {
-	return &Templates{
+	tpl := &Templates{
 		Root:   rootDir,
 		Suffix: ".html",
 	}
+	tpl.loadTpls()
+	return tpl
 }
 
 // Render Templates.
@@ -30,7 +32,7 @@ func (tpl *Templates) Render(w io.Writer, tplname string, data interface{}) erro
 }
 
 func (tpl *Templates) loadTpls() {
-	tpl.template = template.New("_SG_").
+	tpl.template = template.New("_SweetyGo_").
 		Funcs(tpl.FuncMap)
 	tpls, err := tpl.listDir()
 	if err != nil {
@@ -52,15 +54,14 @@ func (tpl *Templates) listDir() ([]string, error) {
 			continue
 		}
 		if strings.HasSuffix(f.Name(), tpl.Suffix) {
-			filename := path.Join(tpl.Root, f.Name())
-			files = append(files, filename)
+			files = append(files, f.Name())
 		}
 	}
 	return files, nil
 }
 
 func (tpl *Templates) parseFile(filename string) error {
-	b, err := ioutil.ReadFile(filename)
+	b, err := ioutil.ReadFile(path.Join(tpl.Root, filename))
 	if err != nil {
 		return err
 	}
@@ -68,7 +69,7 @@ func (tpl *Templates) parseFile(filename string) error {
 	if t == nil {
 		t = tpl.template.New(filename)
 	}
-	_, err = tpl.template.Parse(string(b))
+	t, err = t.Parse(string(b))
 	if err != nil {
 		return err
 	}

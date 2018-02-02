@@ -3,6 +3,7 @@ package sweetygo
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -64,7 +65,7 @@ func (ctx *Context) SetVar(key string, val interface{}) {
 
 // GetVal gets all data in context.
 func (ctx *Context) GetVal() map[string]interface{} {
-	ctx.storeMutex.Lock()
+	ctx.storeMutex.RLock()
 	vals := make(map[string]interface{})
 	for k, v := range ctx.store {
 		vals[k] = v
@@ -137,9 +138,11 @@ func (ctx *Context) JSON(code int, v interface{}) {
 }
 
 // Render sweetygo.templates with stored data.
-func (ctx *Context) Render(code int, tpl string) {
+func (ctx *Context) Render(code int, tplname string) {
 	buf := new(bytes.Buffer)
-	if err := ctx.sg.Templates.Render(buf, tpl, ctx.GetVal()); err != nil {
+	err := ctx.sg.Templates.Render(buf, tplname, ctx.GetVal())
+	if err != nil {
+		fmt.Println(err)
 		ctx.Error("Render Error", 500)
 		return
 	}

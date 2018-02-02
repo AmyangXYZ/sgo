@@ -25,7 +25,6 @@ import (
 
 func main() {
 	app := sweetygo.New()
-
 	app.USE(sweetygo.Logger())
 	app.Static("/static", "/home/amyang/Projects/SweetyGo/example/static")
 	app.GET("/", home)
@@ -36,7 +35,8 @@ func main() {
 }
 
 func home(ctx *sweetygo.Context) {
-	ctx.HTML(200, "Welcome\n")
+	ctx.SetVar("content", "this is content")
+	ctx.Render(200, "index.html")
 }
 
 func api(ctx *sweetygo.Context) {
@@ -44,8 +44,8 @@ func api(ctx *sweetygo.Context) {
 }
 
 func hello(ctx *sweetygo.Context) {
-	params := ctx.Params()
-	body := "Hello" + params["usr"][0]
+	params := ctx.ParseForm()
+	body := "Hello " + params["user"][0]
 	ctx.HTML(200, body)
 }
 
@@ -56,6 +56,5 @@ func hello(ctx *sweetygo.Context) {
 ## TODOs
 
 - [ ] Session
-- [ ] Render
 - [ ] Some built-in Security Middleware
 - [ ] Unit Tests

@@ -6,7 +6,6 @@ import (
 
 func main() {
 	app := sweetygo.New()
-
 	app.USE(sweetygo.Logger())
 	app.Static("/static", "/home/amyang/Projects/SweetyGo/example/static")
 	app.GET("/", home)
@@ -17,7 +16,8 @@ func main() {
 }
 
 func home(ctx *sweetygo.Context) {
-	ctx.HTML(200, "Welcome\n")
+	ctx.SetVar("content", "this is content")
+	ctx.Render(200, "index.html")
 }
 
 func api(ctx *sweetygo.Context) {
