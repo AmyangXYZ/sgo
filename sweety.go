@@ -16,6 +16,7 @@ type SweetyGo struct {
 	Pool                    sync.Pool
 	NotFoundHandler         HandlerFunc
 	MethodNotAllowedHandler HandlerFunc
+	Templates               *Templates
 	Middlewares             []HandlerFunc
 }
 
@@ -28,6 +29,7 @@ func New() *SweetyGo {
 	sg := &SweetyGo{Tree: tree,
 		NotFoundHandler:         NotFoundHandler,
 		MethodNotAllowedHandler: MethodNotAllowedHandler,
+		Templates:               NewTemplates("path"),
 		Middlewares:             make([]HandlerFunc, 0),
 	}
 	sg.Pool = sync.Pool{

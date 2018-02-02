@@ -1,12 +1,14 @@
 package sweetygo
 
 import (
+	"bytes"
 	"encoding/json"
 	"io"
 	"mime/multipart"
 	"net/http"
 	"net/url"
 	"os"
+	"sync"
 )
 
 // Context provide a HTTP context for SweetyGo.
@@ -15,6 +17,8 @@ type Context struct {
 	Req          *http.Request
 	Resp         *responseWriter
 	handlers     []HandlerFunc
+	store        map[string]interface{}
+	storeMutex   sync.RWMutex
 	handlerState int
 }
 
@@ -34,6 +38,9 @@ func (ctx *Context) Init(w http.ResponseWriter, r *http.Request) {
 	ctx.Req = r
 	ctx.handlers = ctx.handlers[:len(ctx.sg.Middlewares)]
 	ctx.handlerState = 0
+	ctx.storeMutex.Lock()
+	ctx.store = nil
+	ctx.storeMutex.Unlock()
 }
 
 // Next execute next middleware or router.
@@ -43,6 +50,27 @@ func (ctx *Context) Next() {
 		ctx.handlerState++
 		ctx.handlers[i](ctx)
 	}
+}
+
+// SetVar stores variables in context.
+func (ctx *Context) SetVar(key string, val interface{}) {
+	ctx.storeMutex.Lock()
+	if ctx.store == nil {
+		ctx.store = make(map[string]interface{})
+	}
+	ctx.store[key] = val
+	ctx.storeMutex.Unlock()
+}
+
+// GetVal gets all data in context.
+func (ctx *Context) GetVal() map[string]interface{} {
+	ctx.storeMutex.Lock()
+	vals := make(map[string]interface{})
+	for k, v := range ctx.store {
+		vals[k] = v
+	}
+	ctx.storeMutex.RUnlock()
+	return vals
 }
 
 // ParseForm returns route params
@@ -106,6 +134,18 @@ func (ctx *Context) JSON(code int, v interface{}) {
 	ctx.Resp.Header().Set("Content-Type", "application/json")
 	ctx.Resp.WriteHeader(code)
 	ctx.Resp.Write(data)
+}
+
+// Render sweetygo.templates with stored data.
+func (ctx *Context) Render(code int, tpl string) {
+	buf := new(bytes.Buffer)
+	if err := ctx.sg.Templates.Render(buf, tpl, ctx.GetVal()); err != nil {
+		ctx.Error("Render Error", 500)
+		return
+	}
+	ctx.Resp.Header().Set("Content-Type", "text/html")
+	ctx.Resp.WriteHeader(code)
+	ctx.Resp.Write(buf.Bytes())
 }
 
 // Redirect redirects the request
