@@ -5,9 +5,9 @@ import (
 )
 
 func main() {
-	app := sweetygo.New()
+	rootDir := "/home/amyang/Projects/SweetyGo/example"
+	app := sweetygo.New(rootDir)
 	app.USE(sweetygo.Logger())
-	app.Static("/static", "/home/amyang/Projects/SweetyGo/example/static")
 	app.GET("/", home)
 	app.POST("/api", api)
 	app.GET("/usr/:user/:sex/:age", hello)
@@ -16,8 +16,8 @@ func main() {
 }
 
 func home(ctx *sweetygo.Context) {
-	ctx.SetVar("content", "this is content")
-	ctx.Render(200, "index.html")
+	ctx.SetVar("user", "Sweetie")
+	ctx.Render(200, "index")
 }
 
 func api(ctx *sweetygo.Context) {

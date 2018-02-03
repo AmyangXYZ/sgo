@@ -1,11 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-</head>
-<body>
-
-    {{ .content }}
-    
-</body>
-</html>
+{{ define "index" }}{{ template "share/header" }}
+	Hello, {{ .user  }}
+{{ template "share/footer" }}
+{{ end }}

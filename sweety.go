@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/http"
+	"path"
 	"sync"
 )
 
@@ -20,8 +21,10 @@ type SweetyGo struct {
 	Middlewares             []HandlerFunc
 }
 
-// New SweetyGo App
-func New() *SweetyGo {
+// New SweetyGo App.
+// Deafault static and templates dir is
+// rootDir+"static" and rootDir + "templates"
+func New(rootDir string) *SweetyGo {
 	tree := &Trie{
 		component: "/",
 		methods:   make(map[string]HandlerFunc),
@@ -29,7 +32,7 @@ func New() *SweetyGo {
 	sg := &SweetyGo{Tree: tree,
 		NotFoundHandler:         NotFoundHandler,
 		MethodNotAllowedHandler: MethodNotAllowedHandler,
-		Templates:               NewTemplates("path"),
+		Templates:               NewTemplates(path.Join(rootDir, "templates")),
 		Middlewares:             make([]HandlerFunc, 0),
 	}
 	sg.Pool = sync.Pool{
@@ -37,6 +40,7 @@ func New() *SweetyGo {
 			return NewContext(nil, nil, sg)
 		},
 	}
+	sg.Static("/static", path.Join(rootDir, "static"))
 	return sg
 }
 

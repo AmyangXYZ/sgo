@@ -4,8 +4,9 @@ import (
 	"html/template"
 	"io"
 	"io/ioutil"
+	"os"
 	"path"
-	"strings"
+	"path/filepath"
 )
 
 // Templates is a templates manager.
@@ -34,7 +35,7 @@ func (tpl *Templates) Render(w io.Writer, tplname string, data interface{}) erro
 func (tpl *Templates) loadTpls() {
 	tpl.template = template.New("_SweetyGo_").
 		Funcs(tpl.FuncMap)
-	tpls, err := tpl.listDir()
+	tpls, err := tpl.walkDir()
 	if err != nil {
 		return
 	}
@@ -43,19 +44,20 @@ func (tpl *Templates) loadTpls() {
 	}
 }
 
-func (tpl *Templates) listDir() ([]string, error) {
+func (tpl *Templates) walkDir() ([]string, error) {
 	files := make([]string, 0)
-	dir, err := ioutil.ReadDir(tpl.Root)
-	if err != nil {
-		return nil, err
-	}
-	for _, f := range dir {
+	err := filepath.Walk(tpl.Root, func(filename string, f os.FileInfo, err error) error {
+		if f == nil {
+			return err
+		}
 		if f.IsDir() {
-			continue
+			return nil
 		}
-		if strings.HasSuffix(f.Name(), tpl.Suffix) {
-			files = append(files, f.Name())
-		}
+		files = append(files, filename[len(tpl.Root)+1:])
+		return nil
+	})
+	if err != nil {
+		panic(err)
 	}
 	return files, nil
 }
