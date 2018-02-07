@@ -13,15 +13,23 @@ type HandlerFunc func(*Context)
 
 // SweetyGo is Suuuuuuuuper Sweetie!
 type SweetyGo struct {
-	Tree                    *Trie
-	Pool                    sync.Pool
+	// Router is based on a radix/trie tree.
+	Tree *Trie
+
+	// Pool is for context.
+	Pool *sync.Pool
+
 	NotFoundHandler         HandlerFunc
 	MethodNotAllowedHandler HandlerFunc
-	Templates               *Templates
-	Middlewares             []HandlerFunc
+
+	// Built-in templates render.
+	Templates *Templates
+
+	Middlewares []HandlerFunc
 }
 
 // New SweetyGo App.
+//
 // Deafault static and templates dir is
 // rootDir+"static" and rootDir + "templates"
 func New(rootDir string) *SweetyGo {
@@ -35,7 +43,7 @@ func New(rootDir string) *SweetyGo {
 		Templates:               NewTemplates(path.Join(rootDir, "templates")),
 		Middlewares:             make([]HandlerFunc, 0),
 	}
-	sg.Pool = sync.Pool{
+	sg.Pool = &sync.Pool{
 		New: func() interface{} {
 			return NewContext(nil, nil, sg)
 		},
