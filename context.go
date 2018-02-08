@@ -172,11 +172,17 @@ func (ctx *Context) Text(code int, body string) {
 
 // JSON response JSON data.
 func (ctx *Context) JSON(code int, v interface{}) {
-	data, err := json.Marshal(v)
-	if err != nil {
-		ctx.Resp.WriteHeader(http.StatusInternalServerError)
-		ctx.Error("JSON Marshal Error", 500)
+	m := map[string]interface{}{
+		"status": "success",
+		"data":   v,
 	}
+	if code != 200 {
+		m = map[string]interface{}{
+			"status":  "fail",
+			"message": v,
+		}
+	}
+	data, _ := json.Marshal(m)
 	ctx.Resp.Header().Set("Content-Type", "application/json")
 	ctx.Resp.WriteHeader(code)
 	ctx.Resp.Write(data)
