@@ -171,16 +171,10 @@ func (ctx *Context) Text(code int, body string) {
 }
 
 // JSON response JSON data.
-func (ctx *Context) JSON(code int, v interface{}) {
+func (ctx *Context) JSON(code int, v interface{}, status string) {
 	m := map[string]interface{}{
-		"status": "success",
+		"status": status,
 		"data":   v,
-	}
-	if code != 200 {
-		m = map[string]interface{}{
-			"status":  "fail",
-			"message": v,
-		}
 	}
 	data, _ := json.Marshal(m)
 	ctx.Resp.Header().Set("Content-Type", "application/json")
