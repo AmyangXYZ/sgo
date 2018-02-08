@@ -112,8 +112,11 @@ func (ctx *Context) Params() url.Values {
 }
 
 // Param returns specific params
-func (ctx *Context) Param(key string) interface{} {
-	return ctx.Req.Form[key][0]
+func (ctx *Context) Param(key string) string {
+	if ctx.Params()[key] != nil {
+		return ctx.Params()[key][0]
+	}
+	return ""
 }
 
 // Method .
