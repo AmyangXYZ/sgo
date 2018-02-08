@@ -106,10 +106,14 @@ func (ctx *Context) GetCookie(name string) string {
 	return v
 }
 
-// ParseForm returns route params
-func (ctx *Context) ParseForm() url.Values {
-	ctx.Req.ParseForm()
+// Params returns all params
+func (ctx *Context) Params() url.Values {
 	return ctx.Req.Form
+}
+
+// Param returns specific params
+func (ctx *Context) Param(key string) interface{} {
+	return ctx.Req.Form[key][0]
 }
 
 // Method .
