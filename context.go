@@ -173,12 +173,13 @@ func (ctx *Context) Text(code int, body string) {
 // JSON response JSON data.
 func (ctx *Context) JSON(code int, value interface{}, status string) {
 	m := map[string]interface{}{
-		"status": status,
-		"data":   value,
+		"status":  status,
+		"data":    value,
+		"message": "",
 	}
 	if status != "success" {
 		m["message"] = value
-		delete(m, "data")
+		m["data"] = ""
 	}
 	data, _ := json.Marshal(m)
 	ctx.Resp.Header().Set("Content-Type", "application/json")
