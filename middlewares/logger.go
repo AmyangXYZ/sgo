@@ -1,8 +1,8 @@
 package middlewares
 
 import (
+	"io"
 	"log"
-	"os"
 	"strings"
 	"time"
 
@@ -10,8 +10,8 @@ import (
 )
 
 // Logger implements SweetyGo.Middleware's interface.
-func Logger() sweetygo.HandlerFunc {
-	logger := log.New(os.Stdout, "*SweetyGo*", 0)
+func Logger(out io.Writer) sweetygo.HandlerFunc {
+	logger := log.New(out, "*SweetyGo*", 0)
 	return func(ctx *sweetygo.Context) {
 		start := time.Now()
 		ctx.Next()

@@ -20,6 +20,10 @@ type JWTConfig struct {
 	// Secret key.
 	Keyfunc jwt.Keyfunc
 
+	// store in cookie or header.
+	// Cookie is safer, https://stormpath.com/blog/where-to-store-your-jwts-cookies-vs-html5-web-storage.
+	Store string
+
 	// Path and method who require JWT middleware.
 	// Example:
 	// requiredJWTMap = map[string]string{
@@ -31,7 +35,7 @@ type JWTConfig struct {
 	RequiredMap map[string]string
 
 	// Context key to store user information from the token into context.
-	// Default is user.
+	// Default is usrToken.
 	ContextKey string
 
 	// Claims are extendable claims data defining token content.
@@ -40,15 +44,16 @@ type JWTConfig struct {
 }
 
 // JWT implements sweetygo.HandlerFunc.
-func JWT(key string, requiredmap map[string]string) sweetygo.HandlerFunc {
+func JWT(store, key string, requiredmap map[string]string) sweetygo.HandlerFunc {
 	J := &JWTConfig{
-		Name:          "sgtoken",
+		Name:          "SG_Token",
 		SigningMethod: jwt.SigningMethodHS256,
 		Keyfunc: func(t *jwt.Token) (interface{}, error) {
 			return []byte(key), nil
 		},
+		Store:       store,
 		RequiredMap: requiredmap,
-		ContextKey:  "user",
+		ContextKey:  "userInfo",
 		Claims:      jwt.MapClaims{},
 	}
 	return func(ctx *sweetygo.Context) {
@@ -57,7 +62,7 @@ func JWT(key string, requiredmap map[string]string) sweetygo.HandlerFunc {
 				ctx.URL() == path {
 				if ctx.Method() == method || method == "ALL" ||
 					(method[0] == '!' && ctx.Method() != method[1:]) {
-					auth := ctx.GetCookie(J.Name)
+					auth := J.extractorJWT(ctx)
 					token, err := jwt.Parse(auth, J.Keyfunc)
 					if err == nil && token.Valid {
 						ctx.Set(J.ContextKey, token)
@@ -70,5 +75,20 @@ func JWT(key string, requiredmap map[string]string) sweetygo.HandlerFunc {
 		}
 		ctx.Next()
 		return
+	}
+}
+
+func (J *JWTConfig) extractorJWT(ctx *sweetygo.Context) string {
+	switch J.Store {
+	case "Cookie":
+		return ctx.GetCookie(J.Name)
+	case "Header":
+		auth := ctx.Req.Header.Get("Authorization")
+		if len(auth) > len(J.Name)+1 {
+			return auth[len(J.Name)+1:]
+		}
+		return ""
+	default:
+		return ""
 	}
 }

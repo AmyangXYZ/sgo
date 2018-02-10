@@ -20,6 +20,7 @@ SweetyGo is a simple, light and fast Web framework written in Go.
 package main
 
 import (
+	"os"
 	"time"
 
 	"github.com/AmyangXYZ/sweetygo"
@@ -28,6 +29,7 @@ import (
 )
 
 var (
+	rootDir        = "/home/amyang/Projects/SweetyGo/example"
 	secretKey      = "CuteSweetie"
 	requiredJWTMap = map[string]string{
 		"/api":   "!GET",
@@ -35,20 +37,19 @@ var (
 		"/usr/*": "POST",
 		"/api/2": "ALL",
 	}
+	listenPort = ":16311"
 )
 
 func main() {
-	rootDir := "/home/amyang/Projects/SweetyGo/example"
 	app := sweetygo.New(rootDir)
-	app.USE(middlewares.Logger())
-	app.USE(middlewares.JWT(secretKey, requiredJWTMap))
+	app.USE(middlewares.Logger(os.Stdout))
+	app.USE(middlewares.JWT("Header", secretKey, requiredJWTMap))
 	app.GET("/", home)
 	app.GET("/api", biu)
 	app.POST("/api", hello)
 	app.POST("/login", login)
 	app.GET("/usr/:user", usr)
-
-	app.RunServer(":16311")
+	app.RunServer(listenPort)
 }
 
 func home(ctx *sweetygo.Context) {
@@ -61,9 +62,8 @@ func biu(ctx *sweetygo.Context) {
 }
 
 func login(ctx *sweetygo.Context) {
-	params := ctx.ParseForm()
-	usr := params["usr"][0]
-	pwd := params["pwd"][0]
+	usr := ctx.Param("usr")
+	pwd := ctx.Param("pwd")
 	if usr == "Amyang" && pwd == "biu" {
 		token := jwt.New(jwt.SigningMethodHS256)
 		claims := token.Claims.(jwt.MapClaims)
@@ -71,25 +71,25 @@ func login(ctx *sweetygo.Context) {
 		claims["admin"] = true
 		claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
 		t, _ := token.SignedString([]byte(secretKey))
-		ctx.SetCookie("sgtoken", t)
-		ctx.JSON(200, map[string]string{"token": t})
+		ctx.JSON(200, map[string]string{"SG_Token": t}, "success")
+		return
 	}
+	ctx.JSON(200, "Username or Password Error", "fail")
 }
 
 func api(ctx *sweetygo.Context) {
-	ctx.JSON(200, map[string]int{"uid": 001})
+	ctx.JSON(200, map[string]int{"uid": 001}, "success")
 }
 
 func hello(ctx *sweetygo.Context) {
-	usr := ctx.Get("user").(*jwt.Token)
+	usr := ctx.Get("userInfo").(*jwt.Token)
 	claims := usr.Claims.(jwt.MapClaims)
 	name := claims["name"].(string)
 	ctx.Text(200, "Hello "+name)
 }
 
 func usr(ctx *sweetygo.Context) {
-	params := ctx.ParseForm()
-	ctx.Text(200, "Welcome home, "+params["user"][0])
+	ctx.Text(200, "Welcome home, "+ctx.Param("user"))
 }
 
 
@@ -99,5 +99,5 @@ func usr(ctx *sweetygo.Context) {
 
 ## TODOs
 
-- [ ] Some built-in Security Middleware
+- [ ] More built-in Security Middleware
 - [ ] Unit Tests
