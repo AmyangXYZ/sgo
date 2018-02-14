@@ -21,7 +21,7 @@ type Templates struct {
 func NewTemplates(rootDir string) *Templates {
 	tpl := &Templates{
 		Root:   rootDir,
-		Suffix: ".tpl",
+		Suffix: ".html",
 	}
 	tpl.loadTpls()
 	return tpl
