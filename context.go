@@ -136,21 +136,21 @@ func (ctx *Context) FormFile(key string) (multipart.File, *multipart.FileHeader,
 }
 
 // SaveFile saves the form file.
-func (ctx *Context) SaveFile(name, savePath string) error {
+func (ctx *Context) SaveFile(name, saveDir string) (string, error) {
 	fr, handle, err := ctx.FormFile(name)
 	if err != nil {
-		return err
+		return "", err
 	}
 	defer fr.Close()
-
-	fw, err := os.OpenFile(path.Join(savePath, handle.Filename), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
+	savePath := path.Join(saveDir, handle.Filename)
+	fw, err := os.OpenFile(savePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {
-		return err
+		return "", err
 	}
 	defer fw.Close()
 
 	_, err = io.Copy(fw, fr)
-	return err
+	return savePath, err
 }
 
 // Error .
