@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path"
 	"sync"
 )
 
@@ -136,13 +137,13 @@ func (ctx *Context) FormFile(key string) (multipart.File, *multipart.FileHeader,
 
 // SaveFile saves the form file.
 func (ctx *Context) SaveFile(name, savePath string) error {
-	fr, _, err := ctx.FormFile(name)
+	fr, handle, err := ctx.FormFile(name)
 	if err != nil {
 		return err
 	}
 	defer fr.Close()
 
-	fw, err := os.OpenFile(savePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
+	fw, err := os.OpenFile(path.Join(savePath, handle.Filename), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {
 		return err
 	}
