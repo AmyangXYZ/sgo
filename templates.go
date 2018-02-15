@@ -18,10 +18,11 @@ type Templates struct {
 }
 
 // NewTemplates .
-func NewTemplates(rootDir string) *Templates {
+func NewTemplates(rootDir string, funcMap template.FuncMap) *Templates {
 	tpl := &Templates{
-		Root:   rootDir,
-		Suffix: ".html",
+		Root:    rootDir,
+		Suffix:  ".html",
+		FuncMap: funcMap,
 	}
 	tpl.loadTpls()
 	return tpl
@@ -33,8 +34,8 @@ func (tpl *Templates) Render(w io.Writer, tplname string, data interface{}) erro
 }
 
 func (tpl *Templates) loadTpls() {
-	tpl.template = template.New("_SweetyGo_")
-	tpl.template.Funcs(tpl.FuncMap)
+	tpl.template = template.New("_SweetyGo_").
+		Funcs(tpl.FuncMap)
 	tpls, err := tpl.walkDir()
 	if err != nil {
 		return
