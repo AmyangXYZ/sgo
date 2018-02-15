@@ -33,8 +33,8 @@ func (tpl *Templates) Render(w io.Writer, tplname string, data interface{}) erro
 }
 
 func (tpl *Templates) loadTpls() {
-	tpl.template = template.New("_SweetyGo_").
-		Funcs(tpl.FuncMap)
+	tpl.template = template.New("_SweetyGo_")
+	tpl.template.Funcs(tpl.FuncMap)
 	tpls, err := tpl.walkDir()
 	if err != nil {
 		return
