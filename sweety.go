@@ -49,7 +49,7 @@ func New(rootDir string, funcMap template.FuncMap) *SweetyGo {
 			return NewContext(nil, nil, sg)
 		},
 	}
-	sg.Static("/static", path.Join(rootDir, "static"))
+
 	return sg
 }
 

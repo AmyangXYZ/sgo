@@ -15,16 +15,6 @@ func MethodNotAllowedHandler(ctx *Context) {
 	http.Error(ctx.Resp, "Method Not Allowed", 405)
 }
 
-// Static .
-func (sg *SweetyGo) Static(path, dir string) {
-	StaticServer := func(ctx *Context) {
-		staticHandle := http.StripPrefix(path,
-			http.FileServer(http.Dir(dir)))
-		staticHandle.ServeHTTP(ctx.Resp, ctx.Req)
-	}
-	sg.GET(path+"/*files", StaticServer)
-}
-
 func (sg *SweetyGo) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := sg.Pool.Get().(*Context)
 	ctx.Init(w, r)
