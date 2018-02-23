@@ -97,6 +97,8 @@ func usr(ctx *sweetygo.Context) {
 
 ![example](https://raw.githubusercontent.com/AmyangXYZ/sweetygo/master/example/example.png)
 
+My [Blog](https://amyang.xyz) is also powered by SweetyGo.
+
 ## TODOs
 
 - [ ] More built-in Security Middleware
