@@ -172,20 +172,18 @@ func (ctx *Context) Text(code int, body string) {
 }
 
 // JSON response JSON data.
-func (ctx *Context) JSON(code int, value interface{}, status string) {
+// {flag: 1, msg: "success", data: ...}
+func (ctx *Context) JSON(code, flag int, msg string, data interface{}) {
 	m := map[string]interface{}{
-		"status":  status,
-		"data":    value,
-		"message": "",
+		"msg":  msg,
+		"data": data,
+		"flag": flag,
 	}
-	if status != "success" {
-		m["message"] = value
-		m["data"] = ""
-	}
-	data, _ := json.Marshal(m)
+
+	j, _ := json.Marshal(m)
 	ctx.Resp.Header().Set("Content-Type", "application/json")
 	ctx.Resp.WriteHeader(code)
-	ctx.Resp.Write(data)
+	ctx.Resp.Write(j)
 }
 
 // Render sweetygo.templates with stored data.

@@ -71,14 +71,14 @@ func login(ctx *sweetygo.Context) {
 		claims["admin"] = true
 		claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
 		t, _ := token.SignedString([]byte(secretKey))
-		ctx.JSON(200, map[string]string{"SG_Token": t}, "success")
+		ctx.JSON(200, 1, "success", map[string]string{"SG_Token": t})
 		return
 	}
-	ctx.JSON(200, "Username or Password Error", "fail")
+	ctx.JSON(200, 0, "username or password error", nil)
 }
 
 func api(ctx *sweetygo.Context) {
-	ctx.JSON(200, map[string]int{"uid": 001}, "success")
+	ctx.JSON(200, 1, "success", map[string]string{"version": 1.1})
 }
 
 func hello(ctx *sweetygo.Context) {
