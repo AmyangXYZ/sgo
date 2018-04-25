@@ -186,6 +186,16 @@ func (ctx *Context) JSON(code, flag int, msg string, data interface{}) {
 	ctx.Resp.Write(j)
 }
 
+// JSONP return JSONP data.
+func (ctx *Context) JSONP(code int, callback string, data interface{}) {
+	j, _ := json.Marshal(data)
+	ctx.Resp.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+	ctx.Resp.WriteHeader(code)
+	ctx.Resp.Write([]byte(callback + "("))
+	ctx.Resp.Write(j)
+	ctx.Resp.Write([]byte(");"))
+}
+
 // Render sweetygo.templates with stored data.
 func (ctx *Context) Render(code int, tplname string) {
 	buf := new(bytes.Buffer)
