@@ -22,6 +22,7 @@ The source is easy to learn, then you can make your own Go Web Framework!
 package main
 
 import (
+	"html/template"
 	"os"
 	"time"
 
@@ -43,7 +44,7 @@ var (
 )
 
 func main() {
-	app := sweetygo.New(rootDir)
+	app := sweetygo.New(rootDir, template.FuncMap{})
 	app.USE(middlewares.Logger(os.Stdout))
 	app.USE(middlewares.JWT("Header", secretKey, requiredJWTMap))
 	app.GET("/", home)
