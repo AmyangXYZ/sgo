@@ -32,6 +32,9 @@ func main() {
 	app.POST("/login", login)
 	app.GET("/usr/:user", usr)
 	app.RunServer(listenPort)
+
+	// Or use QUIC
+	// app.RunServerOverQUIC(listenPort, certFile, keyFile)
 }
 
 func home(ctx *sweetygo.Context) {
