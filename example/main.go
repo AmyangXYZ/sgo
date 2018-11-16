@@ -60,7 +60,7 @@ func login(ctx *sweetygo.Context) {
 }
 
 func api(ctx *sweetygo.Context) {
-	ctx.JSON(200, 1, "success", map[string]string{"version": 1.1})
+	ctx.JSON(200, 1, "success", map[string]string{"version": "1.1"})
 }
 
 func hello(ctx *sweetygo.Context) {

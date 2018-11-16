@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"path"
 	"sync"
+
+	"github.com/lucas-clemente/quic-go/h2quic"
 )
 
 // HandlerFunc context handler func
@@ -68,4 +70,12 @@ func (sg *SweetyGo) RunServer(addr string) {
 	fmt.Println(string(logo))
 	fmt.Printf("*SweetyGo* -- Listen on %s\n", addr)
 	http.ListenAndServe(addr, sg)
+}
+
+// RunServerOverQUIC .
+func (sg *SweetyGo) RunServerOverQUIC(addr, certFile, keyFile string) {
+	logo, _ := base64.StdEncoding.DecodeString("XOKUgi/ilZTilZDilZfilKwg4pSs4pSM4pSA4pSQ4pSM4pSA4pSQ4pSM4pSs4pSQ4pSsIOKUrOKVlOKVkOKVl+KUjOKUgOKUkFzilIIvCuKUgCDilIDilZrilZDilZfilILilILilILilJzilKQg4pSc4pSkICDilIIg4pSU4pSs4pSY4pWRIOKVpuKUgiDilILilIAg4pSACi/ilIJc4pWa4pWQ4pWd4pSU4pS04pSY4pSU4pSA4pSY4pSU4pSA4pSYIOKUtCAg4pS0IOKVmuKVkOKVneKUlOKUgOKUmC/ilIJcCg==")
+	fmt.Println(string(logo))
+	fmt.Printf("*SweetyGo* -- Listen on %s\n", addr)
+	h2quic.ListenAndServe(addr, certFile, keyFile, sg)
 }
