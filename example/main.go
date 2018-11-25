@@ -2,6 +2,7 @@ package main
 
 import (
 	"html/template"
+	"net/http"
 	"os"
 	"time"
 
@@ -11,7 +12,7 @@ import (
 )
 
 var (
-	rootDir        = "/home/amyang/Projects/SweetyGo/example"
+	tplDir         = "templates"
 	secretKey      = "CuteSweetie"
 	requiredJWTMap = map[string]string{
 		"/api":   "!GET",
@@ -23,23 +24,33 @@ var (
 )
 
 func main() {
-	app := sweetygo.New(rootDir, template.FuncMap{})
+	app := sweetygo.New()
+	app.SetTemplates(tplDir, template.FuncMap{})
+
 	app.USE(middlewares.Logger(os.Stdout))
 	app.USE(middlewares.JWT("Header", secretKey, requiredJWTMap))
 	app.GET("/", home)
+	app.GET("/static/*files", static)
 	app.GET("/api", biu)
 	app.POST("/api", hello)
 	app.POST("/login", login)
 	app.GET("/usr/:user", usr)
+
 	app.RunServer(listenPort)
 
 	// Or use QUIC
-	// app.RunServerOverQUIC(listenPort, certFile, keyFile)
+	// app.RunServerOverQUIC(listenPort, "fullchain.pem", "privkey.pem")
 }
 
 func home(ctx *sweetygo.Context) {
 	ctx.Set("baby", "Sweetie")
 	ctx.Render(200, "index")
+}
+
+func static(ctx *sweetygo.Context) {
+	staticHandle := http.StripPrefix("/static",
+		http.FileServer(http.Dir("./static")))
+	staticHandle.ServeHTTP(ctx.Resp, ctx.Req)
 }
 
 func biu(ctx *sweetygo.Context) {
