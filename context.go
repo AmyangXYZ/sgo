@@ -215,8 +215,8 @@ func (ctx *Context) Redirect(url string, code int) {
 	http.Redirect(ctx.Resp, ctx.Req, url, code)
 }
 
-// URL returns URL string.
-func (ctx *Context) URL() string {
+// Path returns URL Path string.
+func (ctx *Context) Path() string {
 	return ctx.Req.URL.Path
 }
 

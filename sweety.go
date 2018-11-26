@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
-	"path"
 	"sync"
 
 	"github.com/lucas-clemente/quic-go/h2quic"
@@ -32,10 +31,7 @@ type SweetyGo struct {
 }
 
 // New SweetyGo App.
-//
-// Deafault static and templates dir is
-// rootDir+"static" and rootDir + "templates"
-func New(rootDir string, funcMap template.FuncMap) *SweetyGo {
+func New() *SweetyGo {
 	tree := &Trie{
 		component: "/",
 		methods:   make(map[string]HandlerFunc),
@@ -43,7 +39,6 @@ func New(rootDir string, funcMap template.FuncMap) *SweetyGo {
 	sg := &SweetyGo{Tree: tree,
 		NotFoundHandler:         NotFoundHandler,
 		MethodNotAllowedHandler: MethodNotAllowedHandler,
-		Templates:               NewTemplates(path.Join(rootDir, "templates"), funcMap),
 		Middlewares:             make([]HandlerFunc, 0),
 	}
 	sg.Pool = &sync.Pool{
@@ -64,18 +59,23 @@ func (sg *SweetyGo) USE(middlewares ...HandlerFunc) {
 	}
 }
 
-// RunServer at the given addr
-func (sg *SweetyGo) RunServer(addr string) {
-	logo, _ := base64.StdEncoding.DecodeString("XOKUgi/ilZTilZDilZfilKwg4pSs4pSM4pSA4pSQ4pSM4pSA4pSQ4pSM4pSs4pSQ4pSsIOKUrOKVlOKVkOKVl+KUjOKUgOKUkFzilIIvCuKUgCDilIDilZrilZDilZfilILilILilILilJzilKQg4pSc4pSkICDilIIg4pSU4pSs4pSY4pWRIOKVpuKUgiDilILilIAg4pSACi/ilIJc4pWa4pWQ4pWd4pSU4pS04pSY4pSU4pSA4pSY4pSU4pSA4pSYIOKUtCAg4pS0IOKVmuKVkOKVneKUlOKUgOKUmC/ilIJcCg==")
-	fmt.Println(string(logo))
-	fmt.Printf("*SweetyGo* -- Listen on %s\n", addr)
-	http.ListenAndServe(addr, sg)
+// SetTemplates set the templates dir and funcMap.
+func (sg *SweetyGo) SetTemplates(tplDir string, funcMap template.FuncMap) {
+	sg.Templates = NewTemplates(tplDir, funcMap)
 }
 
-// RunServerOverQUIC .
-func (sg *SweetyGo) RunServerOverQUIC(addr, certFile, keyFile string) {
+// Run at the given addr
+func (sg *SweetyGo) Run(addr string) error {
 	logo, _ := base64.StdEncoding.DecodeString("XOKUgi/ilZTilZDilZfilKwg4pSs4pSM4pSA4pSQ4pSM4pSA4pSQ4pSM4pSs4pSQ4pSsIOKUrOKVlOKVkOKVl+KUjOKUgOKUkFzilIIvCuKUgCDilIDilZrilZDilZfilILilILilILilJzilKQg4pSc4pSkICDilIIg4pSU4pSs4pSY4pWRIOKVpuKUgiDilILilIAg4pSACi/ilIJc4pWa4pWQ4pWd4pSU4pS04pSY4pSU4pSA4pSY4pSU4pSA4pSYIOKUtCAg4pS0IOKVmuKVkOKVneKUlOKUgOKUmC/ilIJcCg==")
 	fmt.Println(string(logo))
 	fmt.Printf("*SweetyGo* -- Listen on %s\n", addr)
-	h2quic.ListenAndServe(addr, certFile, keyFile, sg)
+	return http.ListenAndServe(addr, sg)
+}
+
+// RunOverQUIC .
+func (sg *SweetyGo) RunOverQUIC(addr, certFile, keyFile string) error {
+	logo, _ := base64.StdEncoding.DecodeString("XOKUgi/ilZTilZDilZfilKwg4pSs4pSM4pSA4pSQ4pSM4pSA4pSQ4pSM4pSs4pSQ4pSsIOKUrOKVlOKVkOKVl+KUjOKUgOKUkFzilIIvCuKUgCDilIDilZrilZDilZfilILilILilILilJzilKQg4pSc4pSkICDilIIg4pSU4pSs4pSY4pWRIOKVpuKUgiDilILilIAg4pSACi/ilIJc4pWa4pWQ4pWd4pSU4pS04pSY4pSU4pSA4pSY4pSU4pSA4pSYIOKUtCAg4pS0IOKVmuKVkOKVneKUlOKUgOKUmC/ilIJcCg==")
+	fmt.Println(string(logo))
+	fmt.Printf("*SweetyGo* -- Listen on %s (HTTP2+QUIC)\n", addr)
+	return h2quic.ListenAndServe(addr, certFile, keyFile, sg)
 }

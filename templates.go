@@ -11,16 +11,16 @@ import (
 
 // Templates is a templates manager.
 type Templates struct {
-	Root     string
+	Dir      string
 	Suffix   string
 	template *template.Template
 	FuncMap  template.FuncMap
 }
 
 // NewTemplates .
-func NewTemplates(rootDir string, funcMap template.FuncMap) *Templates {
+func NewTemplates(tplDir string, funcMap template.FuncMap) *Templates {
 	tpl := &Templates{
-		Root:    rootDir,
+		Dir:     tplDir,
 		Suffix:  ".html",
 		FuncMap: funcMap,
 	}
@@ -47,14 +47,14 @@ func (tpl *Templates) loadTpls() {
 
 func (tpl *Templates) walkDir() ([]string, error) {
 	files := make([]string, 0)
-	err := filepath.Walk(tpl.Root, func(filename string, f os.FileInfo, err error) error {
+	err := filepath.Walk(tpl.Dir, func(filename string, f os.FileInfo, err error) error {
 		if f == nil {
 			return err
 		}
 		if f.IsDir() {
 			return nil
 		}
-		files = append(files, filename[len(tpl.Root)+1:])
+		files = append(files, filename[len(tpl.Dir)+1:])
 		return nil
 	})
 	if err != nil {
@@ -64,7 +64,7 @@ func (tpl *Templates) walkDir() ([]string, error) {
 }
 
 func (tpl *Templates) parseFile(filename string) error {
-	b, err := ioutil.ReadFile(path.Join(tpl.Root, filename))
+	b, err := ioutil.ReadFile(path.Join(tpl.Dir, filename))
 	if err != nil {
 		return err
 	}
