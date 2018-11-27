@@ -34,23 +34,27 @@ import (
 )
 
 var (
-    tplDir         = "templates"
-    secretKey      = "CuteSweetie"
-    requiredJWTMap = map[string]string{
-        "/api":   "!GET",
-        "/login": "GET",
-        "/usr/*": "POST",
-        "/api/2": "ALL",
-    }
+    tplDir     = "templates"
     listenPort = ":16311"
+    secretKey  = "CuteSweetie"
+    jwtSkipper = func(ctx *sweetygo.Context) bool {
+        if ctx.Path() == "/" ||
+            (ctx.Path() == "/api" && ctx.Method() == "GET") ||
+            (ctx.Path() == "/login" && ctx.Method() == "POST") ||
+            (len(ctx.Path()) > 8 && ctx.Path()[0:8] == "/static/") {
+            return true
+        }
+        return false
+    }
 )
 
 func main() {
     app := sweetygo.New()
     app.SetTemplates(tplDir, template.FuncMap{})
 
-    app.USE(middlewares.Logger(os.Stdout))
-    app.USE(middlewares.JWT("Header", secretKey, requiredJWTMap))
+    app.USE(middlewares.Logger(os.Stdout, middlewares.DefaultSkipper))
+    app.USE(middlewares.JWT("Header", secretKey, jwtSkipper))
+
     app.GET("/", home)
     app.GET("/static/*files", static)
     app.GET("/api", biu)
@@ -58,10 +62,10 @@ func main() {
     app.POST("/login", login)
     app.GET("/usr/:user", usr)
 
-    app.RunServer(listenPort)
+    app.Run(listenPort)
 
     // Or use QUIC
-    // app.RunServerOverQUIC(listenPort, "fullchain.pem", "privkey.pem")
+    // app.RunOverQUIC(listenPort, "fullchain.pem", "privkey.pem")
 }
 
 func home(ctx *sweetygo.Context) {

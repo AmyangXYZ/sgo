@@ -5,6 +5,31 @@ import (
 	"strings"
 )
 
+// HTTP methods
+const (
+	CONNECT = http.MethodConnect
+	DELETE  = http.MethodDelete
+	GET     = http.MethodGet
+	HEAD    = http.MethodHead
+	OPTIONS = http.MethodOptions
+	PATCH   = http.MethodPatch
+	POST    = http.MethodPost
+	PUT     = http.MethodPut
+	TRACE   = http.MethodTrace
+)
+
+var methods = [...]string{
+	http.MethodConnect,
+	http.MethodDelete,
+	http.MethodGet,
+	http.MethodHead,
+	http.MethodOptions,
+	http.MethodPatch,
+	http.MethodPost,
+	http.MethodPut,
+	http.MethodTrace,
+}
+
 // NotFoundHandler .
 func NotFoundHandler(ctx *Context) {
 	http.NotFound(ctx.Resp, ctx.Req)
@@ -42,35 +67,52 @@ func (sg *SweetyGo) Handle(method, path string, handler HandlerFunc) {
 
 // GET register GET request handler
 func (sg *SweetyGo) GET(path string, handler HandlerFunc) {
-	sg.Handle("GET", path, handler)
+	sg.Handle(GET, path, handler)
 }
 
 // HEAD register HEAD request handler
 func (sg *SweetyGo) HEAD(path string, handler HandlerFunc) {
-	sg.Handle("HEAD", path, handler)
+	sg.Handle(HEAD, path, handler)
 }
 
 // OPTIONS register OPTIONS request handler
 func (sg *SweetyGo) OPTIONS(path string, handler HandlerFunc) {
-	sg.Handle("OPTIONS", path, handler)
+	sg.Handle(OPTIONS, path, handler)
 }
 
 // POST register POST request handler
 func (sg *SweetyGo) POST(path string, handler HandlerFunc) {
-	sg.Handle("POST", path, handler)
+	sg.Handle(POST, path, handler)
 }
 
 // PUT register PUT request handler
 func (sg *SweetyGo) PUT(path string, handler HandlerFunc) {
-	sg.Handle("PUT", path, handler)
+	sg.Handle(PUT, path, handler)
 }
 
 // PATCH register PATCH request HandlerFunc
 func (sg *SweetyGo) PATCH(path string, handler HandlerFunc) {
-	sg.Handle("PATCH", path, handler)
+	sg.Handle(PATCH, path, handler)
 }
 
 // DELETE register DELETE request handler
 func (sg *SweetyGo) DELETE(path string, handler HandlerFunc) {
-	sg.Handle("DELETE", path, handler)
+	sg.Handle(DELETE, path, handler)
+}
+
+// CONNECT register CONNECT request handler
+func (sg *SweetyGo) CONNECT(path string, handler HandlerFunc) {
+	sg.Handle(CONNECT, path, handler)
+}
+
+// TRACE register TRACE request handler
+func (sg *SweetyGo) TRACE(path string, handler HandlerFunc) {
+	sg.Handle(TRACE, path, handler)
+}
+
+// Any register any method handler
+func (sg *SweetyGo) Any(path string, handler HandlerFunc) {
+	for _, m := range methods {
+		sg.Handle(m, path, handler)
+	}
 }

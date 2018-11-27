@@ -12,17 +12,20 @@ import (
 )
 
 var (
-	tplDir     = "templates"
-	listenPort = ":16311"
-	secretKey  = "CuteSweetie"
-	jwtSkipper = func(ctx *sweetygo.Context) bool {
-		if ctx.Path() == "/" ||
-			(ctx.Path() == "/api" && ctx.Method() == "GET") ||
-			(ctx.Path() == "/login" && ctx.Method() == "POST") ||
-			(len(ctx.Path()) > 8 && ctx.Path()[0:8] == "/static/") {
+	tplDir        = "templates"
+	listenPort    = ":16311"
+	secretKey     = "CuteSweetie"
+	loggerSkipper = func(ctx *sweetygo.Context) bool {
+		if len(ctx.Path()) > 8 && ctx.Path()[0:8] == "/static/" {
 			return true
 		}
 		return false
+	}
+	jwtSkipper = func(ctx *sweetygo.Context) bool {
+		if ctx.Path() == "/api" && ctx.Method() == "POST" {
+			return false
+		}
+		return true
 	}
 )
 
@@ -30,10 +33,10 @@ func main() {
 	app := sweetygo.New()
 	app.SetTemplates(tplDir, template.FuncMap{})
 
-	app.USE(middlewares.Logger(os.Stdout, middlewares.DefaultSkipper))
+	app.USE(middlewares.Logger(os.Stdout, loggerSkipper))
 	app.USE(middlewares.JWT("Header", secretKey, jwtSkipper))
 
-	app.GET("/", home)
+	app.Any("/", home)
 	app.GET("/static/*files", static)
 	app.GET("/api", biu)
 	app.POST("/api", hello)
