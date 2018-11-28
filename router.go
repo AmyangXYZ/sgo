@@ -31,13 +31,15 @@ var methods = [...]string{
 }
 
 // NotFoundHandler .
-func NotFoundHandler(ctx *Context) {
+func NotFoundHandler(ctx *Context) error {
 	http.NotFound(ctx.Resp, ctx.Req)
+	return nil
 }
 
 // MethodNotAllowedHandler .
-func MethodNotAllowedHandler(ctx *Context) {
+func MethodNotAllowedHandler(ctx *Context) error {
 	http.Error(ctx.Resp, "Method Not Allowed", 405)
+	return nil
 }
 
 func (sg *SweetyGo) ServeHTTP(w http.ResponseWriter, r *http.Request) {

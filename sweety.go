@@ -11,7 +11,7 @@ import (
 )
 
 // HandlerFunc context handler func
-type HandlerFunc func(*Context)
+type HandlerFunc func(*Context) error
 
 // SweetyGo is Suuuuuuuuper Sweetie!
 type SweetyGo struct {

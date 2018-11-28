@@ -47,19 +47,20 @@ func JWT(store, key string, skipper Skipper) sweetygo.HandlerFunc {
 		ContextKey: "userInfo",
 		Claims:     jwt.MapClaims{},
 	}
-	return func(ctx *sweetygo.Context) {
+	return func(ctx *sweetygo.Context) error {
 		if J.Skipper(ctx) == true {
 			ctx.Next()
-			return
+			return nil
 		}
 		auth := J.extractorJWT(ctx)
 		token, err := jwt.Parse(auth, J.Keyfunc)
 		if err == nil && token.Valid {
 			ctx.Set(J.ContextKey, token)
 			ctx.Next()
-			return
+			return nil
 		}
 		ctx.Error("Unauthorized access to this resource", 401)
+		return nil
 	}
 }
 

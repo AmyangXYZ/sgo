@@ -3,7 +3,6 @@ package sweetygo
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -51,9 +50,10 @@ func (ctx *Context) Next() {
 	if ctx.handlerState < len(ctx.handlers) {
 		i := ctx.handlerState
 		ctx.handlerState++
-		ctx.handlers[i](ctx)
+		if err := ctx.handlers[i](ctx); err != nil {
+			ctx.Error(err.Error(), 500)
+		}
 	}
-	return
 }
 
 // Set var in context.
@@ -165,49 +165,57 @@ func (ctx *Context) Write(data []byte) (n int, err error) {
 }
 
 // Text response text data.
-func (ctx *Context) Text(code int, body string) {
+func (ctx *Context) Text(code int, body string) error {
 	ctx.Resp.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	ctx.Resp.WriteHeader(code)
-	ctx.Resp.Write([]byte(body))
+	_, err := ctx.Resp.Write([]byte(body))
+	return err
 }
 
 // JSON response JSON data.
 // {flag: 1, msg: "success", data: ...}
-func (ctx *Context) JSON(code, flag int, msg string, data interface{}) {
+func (ctx *Context) JSON(code, flag int, msg string, data interface{}) error {
 	m := map[string]interface{}{
 		"msg":  msg,
 		"data": data,
 		"flag": flag,
 	}
 
-	j, _ := json.Marshal(m)
+	j, err := json.Marshal(m)
+	if err != nil {
+		return err
+	}
 	ctx.Resp.Header().Set("Content-Type", "application/json")
 	ctx.Resp.WriteHeader(code)
 	ctx.Resp.Write(j)
+	return nil
 }
 
 // JSONP return JSONP data.
-func (ctx *Context) JSONP(code int, callback string, data interface{}) {
-	j, _ := json.Marshal(data)
+func (ctx *Context) JSONP(code int, callback string, data interface{}) error {
+	j, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
 	ctx.Resp.Header().Set("Content-Type", "application/javascript; charset=utf-8")
 	ctx.Resp.WriteHeader(code)
 	ctx.Resp.Write([]byte(callback + "("))
 	ctx.Resp.Write(j)
 	ctx.Resp.Write([]byte(");"))
+	return nil
 }
 
 // Render sweetygo.templates with stored data.
-func (ctx *Context) Render(code int, tplname string) {
+func (ctx *Context) Render(code int, tplname string) error {
 	buf := new(bytes.Buffer)
 	err := ctx.sg.Templates.Render(buf, tplname, ctx.Gets())
 	if err != nil {
-		fmt.Println(err)
-		ctx.Error("Render Error", 500)
-		return
+		return err
 	}
 	ctx.Resp.Header().Set("Content-Type", "text/html")
 	ctx.Resp.WriteHeader(code)
 	ctx.Resp.Write(buf.Bytes())
+	return nil
 }
 
 // Redirect redirects the request

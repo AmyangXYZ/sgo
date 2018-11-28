@@ -1,6 +1,7 @@
 package sweetygo
 
 import (
+	"fmt"
 	"html/template"
 	"io"
 	"io/ioutil"
@@ -38,7 +39,8 @@ func (tpl *Templates) loadTpls() {
 		Funcs(tpl.FuncMap)
 	tpls, err := tpl.walkDir()
 	if err != nil {
-		return
+		fmt.Println(err)
+		os.Exit(3)
 	}
 	for _, t := range tpls {
 		tpl.parseFile(t)
@@ -58,7 +60,7 @@ func (tpl *Templates) walkDir() ([]string, error) {
 		return nil
 	})
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	return files, nil
 }

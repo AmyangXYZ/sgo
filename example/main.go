@@ -49,22 +49,23 @@ func main() {
 	// app.RunOverQUIC(listenPort, "fullchain.pem", "privkey.pem")
 }
 
-func home(ctx *sweetygo.Context) {
+func home(ctx *sweetygo.Context) error {
 	ctx.Set("baby", "Sweetie")
-	ctx.Render(200, "index")
+	return ctx.Render(200, "index")
 }
 
-func static(ctx *sweetygo.Context) {
+func static(ctx *sweetygo.Context) error {
 	staticHandle := http.StripPrefix("/static",
 		http.FileServer(http.Dir("./static")))
 	staticHandle.ServeHTTP(ctx.Resp, ctx.Req)
+	return nil
 }
 
-func biu(ctx *sweetygo.Context) {
-	ctx.Text(200, "biu")
+func biu(ctx *sweetygo.Context) error {
+	return ctx.Text(200, "biu")
 }
 
-func login(ctx *sweetygo.Context) {
+func login(ctx *sweetygo.Context) error {
 	usr := ctx.Param("usr")
 	pwd := ctx.Param("pwd")
 	if usr == "Amyang" && pwd == "biu" {
@@ -73,24 +74,26 @@ func login(ctx *sweetygo.Context) {
 		claims["name"] = "Amyang"
 		claims["admin"] = true
 		claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
-		t, _ := token.SignedString([]byte(secretKey))
-		ctx.JSON(200, 1, "success", map[string]string{"SG_Token": t})
-		return
+		t, err := token.SignedString([]byte(secretKey))
+		if err != nil {
+			return err
+		}
+		return ctx.JSON(200, 1, "success", map[string]string{"SG_Token": t})
 	}
-	ctx.JSON(200, 0, "username or password error", nil)
+	return ctx.JSON(200, 0, "username or password error", nil)
 }
 
-func api(ctx *sweetygo.Context) {
-	ctx.JSON(200, 1, "success", map[string]string{"version": "1.1"})
+func api(ctx *sweetygo.Context) error {
+	return ctx.JSON(200, 1, "success", map[string]string{"version": "1.1"})
 }
 
-func hello(ctx *sweetygo.Context) {
+func hello(ctx *sweetygo.Context) error {
 	usr := ctx.Get("userInfo").(*jwt.Token)
 	claims := usr.Claims.(jwt.MapClaims)
 	name := claims["name"].(string)
-	ctx.Text(200, "Hello "+name)
+	return ctx.Text(200, "Hello "+name)
 }
 
-func usr(ctx *sweetygo.Context) {
-	ctx.Text(200, "Welcome home, "+ctx.Param("user"))
+func usr(ctx *sweetygo.Context) error {
+	return ctx.Text(200, "Welcome home, "+ctx.Param("user"))
 }
