@@ -51,7 +51,7 @@ func (ctx *Context) Next() {
 		i := ctx.handlerState
 		ctx.handlerState++
 		if err := ctx.handlers[i](ctx); err != nil {
-			ctx.Error(err.Error(), 500)
+			ctx.Error(500, err.Error())
 		}
 	}
 }
@@ -154,7 +154,7 @@ func (ctx *Context) SaveFile(name, saveDir string) (string, error) {
 }
 
 // Error .
-func (ctx *Context) Error(error string, code int) {
+func (ctx *Context) Error(code int, error string) {
 	http.Error(ctx.Resp, error, code)
 	ctx.handlerState = len(ctx.handlers) // break handlers chain.
 }
@@ -219,7 +219,7 @@ func (ctx *Context) Render(code int, tplname string) error {
 }
 
 // Redirect redirects the request
-func (ctx *Context) Redirect(url string, code int) {
+func (ctx *Context) Redirect(code int, url string) {
 	http.Redirect(ctx.Resp, ctx.Req, url, code)
 }
 

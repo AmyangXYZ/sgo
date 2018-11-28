@@ -59,7 +59,7 @@ func JWT(store, key string, skipper Skipper) sweetygo.HandlerFunc {
 			ctx.Next()
 			return nil
 		}
-		ctx.Error("Unauthorized access to this resource", 401)
+		ctx.Error(401, "Unauthorized access to this resource")
 		return nil
 	}
 }
