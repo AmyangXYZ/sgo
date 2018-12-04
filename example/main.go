@@ -42,8 +42,6 @@ func main() {
 	app.POST("/login", login)
 	app.GET("/usr/:user", usr)
 
-	// app.RunOverBiu(listenPort, "fullchain.pem", "privkey.pem")
-
 	// Or use QUIC
 	app.RunOverQUIC(listenPort, "fullchain.pem", "privkey.pem")
 }

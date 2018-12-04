@@ -72,10 +72,28 @@ func (sg *SweetyGo) Run(addr string) error {
 	return http.ListenAndServe(addr, sg)
 }
 
-// RunOverQUIC .
+// RunOverTLS .
+func (sg *SweetyGo) RunOverTLS(addr, certFile, keyFile string) error {
+	logo, _ := base64.StdEncoding.DecodeString("XOKUgi/ilZTilZDilZfilKwg4pSs4pSM4pSA4pSQ4pSM4pSA4pSQ4pSM4pSs4pSQ4pSsIOKUrOKVlOKVkOKVl+KUjOKUgOKUkFzilIIvCuKUgCDilIDilZrilZDilZfilILilILilILilJzilKQg4pSc4pSkICDilIIg4pSU4pSs4pSY4pWRIOKVpuKUgiDilILilIAg4pSACi/ilIJc4pWa4pWQ4pWd4pSU4pS04pSY4pSU4pSA4pSY4pSU4pSA4pSYIOKUtCAg4pS0IOKVmuKVkOKVneKUlOKUgOKUmC/ilIJcCg==")
+	fmt.Println(string(logo))
+	fmt.Printf("*SweetyGo* -- Listen on %s (TLS)\n", addr)
+	return http.ListenAndServeTLS(addr, certFile, keyFile, sg)
+}
+
+// RunOverQUIC listens on the given network address for both, HTTP/2.0+TLS
+// and HTTP/2.0 + QUIC connetions in parallel.
 func (sg *SweetyGo) RunOverQUIC(addr, certFile, keyFile string) error {
 	logo, _ := base64.StdEncoding.DecodeString("XOKUgi/ilZTilZDilZfilKwg4pSs4pSM4pSA4pSQ4pSM4pSA4pSQ4pSM4pSs4pSQ4pSsIOKUrOKVlOKVkOKVl+KUjOKUgOKUkFzilIIvCuKUgCDilIDilZrilZDilZfilILilILilILilJzilKQg4pSc4pSkICDilIIg4pSU4pSs4pSY4pWRIOKVpuKUgiDilILilIAg4pSACi/ilIJc4pWa4pWQ4pWd4pSU4pS04pSY4pSU4pSA4pSY4pSU4pSA4pSYIOKUtCAg4pS0IOKVmuKVkOKVneKUlOKUgOKUmC/ilIJcCg==")
 	fmt.Println(string(logo))
-	fmt.Printf("*SweetyGo* -- Listen on %s (HTTP2+QUIC)\n", addr)
-	return h2quic.ListenAndServe(addr, certFile, keyFile, sg)
+	fmt.Printf("*SweetyGo* -- Listen on %s (TLS)\n", addr)
+	server := h2quic.Server{
+		Server: &http.Server{
+			Addr:    addr,
+			Handler: sg,
+		},
+	}
+	// listen HTTP/2.0
+	go http.ListenAndServeTLS(addr, certFile, keyFile, sg)
+	return server.ListenAndServeTLS(certFile, keyFile)
+	// return http.ListenAndServeTLS(addr, certFile, keyFile, sg)
 }
