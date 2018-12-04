@@ -13,7 +13,7 @@ import (
 
 var (
 	tplDir        = "templates"
-	listenPort    = ":16311"
+	listenPort    = "amyang.xyz:443"
 	secretKey     = "CuteSweetie"
 	loggerSkipper = func(ctx *sweetygo.Context) bool {
 		if len(ctx.Path()) > 8 && ctx.Path()[0:8] == "/static/" {
@@ -42,10 +42,10 @@ func main() {
 	app.POST("/login", login)
 	app.GET("/usr/:user", usr)
 
-	app.Run(listenPort)
+	// app.RunOverBiu(listenPort, "fullchain.pem", "privkey.pem")
 
 	// Or use QUIC
-	// app.RunOverQUIC(listenPort, "fullchain.pem", "privkey.pem")
+	app.RunOverQUIC(listenPort, "fullchain.pem", "privkey.pem")
 }
 
 func home(ctx *sweetygo.Context) error {
