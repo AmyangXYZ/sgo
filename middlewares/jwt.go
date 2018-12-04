@@ -7,7 +7,7 @@ import (
 
 // DefaultJWTConfig is a built-in middleware with default
 // configuration for authentication.
-type DefaultJWTConfig struct {
+type defaultJWTConfig struct {
 	// Skipper defines a function to skip middleware.
 	Skipper Skipper
 
@@ -36,7 +36,7 @@ type DefaultJWTConfig struct {
 
 // JWT implements sweetygo.HandlerFunc.
 func JWT(store, key string, skipper Skipper) sweetygo.HandlerFunc {
-	J := &DefaultJWTConfig{
+	J := &defaultJWTConfig{
 		Skipper:       skipper,
 		Name:          "SG_Token",
 		SigningMethod: jwt.SigningMethodHS256,
@@ -64,7 +64,7 @@ func JWT(store, key string, skipper Skipper) sweetygo.HandlerFunc {
 	}
 }
 
-func (J *DefaultJWTConfig) extractorJWT(ctx *sweetygo.Context) string {
+func (J *defaultJWTConfig) extractorJWT(ctx *sweetygo.Context) string {
 	switch J.Store {
 	case "Cookie":
 		return ctx.GetCookie(J.Name)

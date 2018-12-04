@@ -32,7 +32,6 @@ var (
 func main() {
 	app := sweetygo.New()
 	app.SetTemplates(tplDir, template.FuncMap{})
-
 	app.USE(middlewares.Logger(os.Stdout, loggerSkipper))
 	app.USE(middlewares.JWT("Header", secretKey, jwtSkipper))
 
