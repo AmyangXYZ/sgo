@@ -43,7 +43,7 @@ func main() {
 	app.GET("/usr/:user", usr)
 
 	// Or use QUIC
-	app.RunOverTLS(listenPort, "fullchain.pem", "privkey.pem")
+	app.RunOverQUIC(listenPort, "fullchain.pem", "privkey.pem")
 }
 
 func home(ctx *sweetygo.Context) error {

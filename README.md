@@ -19,6 +19,27 @@ The source is easy to learn, then you can make your own Go Web Framework!
 
 ## Example
 
+### Simple
+
+```go
+package main
+
+import (
+    "github.com/AmyangXYZ/sweetygo"
+)
+
+func main() {
+    app := sweetygo.New()
+    app.GET("/", func(ctx *sweetygo.Context) error {
+        return ctx.Text(200, "Hello Sweetie")
+    })
+    app.Run(":16311")
+}
+
+```
+
+### Further
+
 ```go
 package main
 
