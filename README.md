@@ -40,7 +40,7 @@ func main() {
 
 ### Further
 
-For vue2 projects
+For vue2 projects, add `module.exports = {assetsDir: 'static', css: { extract: false }}` to vue.config.js, then `npm run build && tar caf dist.tar.xz dist` and copy dist.tar.xz and run `./deployFrontend.sh`.
 
 ```go
 package main
