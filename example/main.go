@@ -1,36 +1,45 @@
 package main
 
 import (
-	"html/template"
+	"errors"
+	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/AmyangXYZ/sgo"
+	"github.com/gorilla/websocket"
 )
 
-var (
-	tplDir     = "templates"
-	listenPort = "amyang.xyz:443"
+const (
+	addr = ":8888"
 )
+
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+}
 
 func main() {
 	app := sgo.New()
-	app.SetTemplates(tplDir, template.FuncMap{})
-
-	app.Any("/", home)
+	app.SetTemplates("./templates", nil)
+	app.GET("/", index)
 	app.GET("/static/*files", static)
-	app.GET("/api", biu)
-	app.GET("/usr/:user", usr)
 
-	app.Run(listenPort)
-	// Or use QUIC
-	// app.RunOverQUIC(listenPort, "fullchain.pem", "privkey.pem")
+	app.GET("/api/boottime", getBootTime)
+	app.GET("/ws/comm", wsComm)
+	app.POST("/api/link/:name", postLink)
+
+	if err := app.Run(addr); err != nil {
+		log.Fatal("Listen error", err)
+	}
 }
 
-func home(ctx *sgo.Context) error {
-	ctx.Set("biu", "S")
+// Index page handler.
+func index(ctx *sgo.Context) error {
 	return ctx.Render(200, "index")
 }
 
+// Static files handler.
 func static(ctx *sgo.Context) error {
 	staticHandle := http.StripPrefix("/static",
 		http.FileServer(http.Dir("./static")))
@@ -38,14 +47,39 @@ func static(ctx *sgo.Context) error {
 	return nil
 }
 
-func biu(ctx *sgo.Context) error {
-	return ctx.Text(200, "biu")
+func getBootTime(ctx *sgo.Context) error {
+	return ctx.Text(200, fmt.Sprintf("%d", 20))
 }
 
-func api(ctx *sgo.Context) error {
-	return ctx.JSON(200, 1, "success", map[string]string{"version": "1.1"})
+func wsComm(ctx *sgo.Context) error {
+	ws, err := upgrader.Upgrade(ctx.Resp, ctx.Req, nil)
+	breakSig := make(chan bool)
+	if err != nil {
+		return err
+	}
+	fmt.Println("ws/comm connected")
+	defer func() {
+		ws.Close()
+		fmt.Println("ws/comm client closed")
+	}()
+	go func() {
+		for {
+			_, _, err := ws.ReadMessage()
+			if err != nil {
+				breakSig <- true
+			}
+		}
+	}()
+	for {
+		select {
+		// case l := <-LogsComm:
+		// 	ws.WriteJSON(l)
+		case <-breakSig:
+			return errors.New("stop ws")
+		}
+	}
 }
 
-func usr(ctx *sgo.Context) error {
-	return ctx.Text(200, "Welcome home, "+ctx.Param("user"))
+func postLink(ctx *sgo.Context) error {
+	return ctx.Text(200, "xx")
 }
