@@ -1,4 +1,4 @@
-package sweetygo
+package sgo
 
 import (
 	"net/url"

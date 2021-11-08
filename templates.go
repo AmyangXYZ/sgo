@@ -1,4 +1,4 @@
-package sweetygo
+package sgo
 
 import (
 	"fmt"
@@ -35,7 +35,7 @@ func (tpl *Templates) Render(w io.Writer, tplname string, data interface{}) erro
 }
 
 func (tpl *Templates) loadTpls() {
-	tpl.template = template.New("_SweetyGo_").
+	tpl.template = template.New("_SGo_").
 		Funcs(tpl.FuncMap)
 	tpls, err := tpl.walkDir()
 	if err != nil {

@@ -1,6 +1,6 @@
-# SweetyGo
+# SGo
 
-SweetyGo is a simple, light and fast Web framework written in Go. 
+SGo is a simple, light and fast Web framework written in Go. 
 
 The source is easy to learn, then you can make your own Go Web Framework!
 
@@ -15,7 +15,7 @@ The source is easy to learn, then you can make your own Go Web Framework!
 
 ## Installation
 
-`go get github.com/AmyangXYZ/sweetygo`
+`go get github.com/AmyangXYZ/sgo`
 
 ## Example
 
@@ -25,12 +25,12 @@ The source is easy to learn, then you can make your own Go Web Framework!
 package main
 
 import (
-    "github.com/AmyangXYZ/sweetygo"
+    "github.com/AmyangXYZ/sgo"
 )
 
 func main() {
-    app := sweetygo.New()
-    app.GET("/", func(ctx *sweetygo.Context) error {
+    app := sgo.New()
+    app.GET("/", func(ctx *sgo.Context) error {
         return ctx.Text(200, "Hello Sweetie")
     })
     app.Run(":16311")
@@ -49,8 +49,8 @@ import (
     "os"
     "time"
 
-    "github.com/AmyangXYZ/sweetygo"
-    "github.com/AmyangXYZ/sweetygo/middlewares"
+    "github.com/AmyangXYZ/sgo"
+    "github.com/AmyangXYZ/sgo/middlewares"
     "github.com/dgrijalva/jwt-go"
 )
 
@@ -58,7 +58,7 @@ var (
     tplDir     = "templates"
     listenPort = ":16311"
     secretKey  = "CuteSweetie"
-    jwtSkipper = func(ctx *sweetygo.Context) bool {
+    jwtSkipper = func(ctx *sgo.Context) bool {
         if ctx.Path() == "/" ||
             (ctx.Path() == "/api" && ctx.Method() == "GET") ||
             (ctx.Path() == "/login" && ctx.Method() == "POST") ||
@@ -70,7 +70,7 @@ var (
 )
 
 func main() {
-    app := sweetygo.New()
+    app := sgo.New()
     app.SetTemplates(tplDir, template.FuncMap{})
 
     app.USE(middlewares.Logger(os.Stdout, middlewares.DefaultSkipper))
@@ -89,22 +89,22 @@ func main() {
     // app.RunOverQUIC(listenPort, "fullchain.pem", "privkey.pem")
 }
 
-func home(ctx *sweetygo.Context) {
+func home(ctx *sgo.Context) {
     ctx.Set("baby", "Sweetie")
     ctx.Render(200, "index")
 }
 
-func static(ctx *sweetygo.Context) {
+func static(ctx *sgo.Context) {
     staticHandle := http.StripPrefix("/static",
         http.FileServer(http.Dir("./static")))
     staticHandle.ServeHTTP(ctx.Resp, ctx.Req)
 }
 
-func biu(ctx *sweetygo.Context) {
+func biu(ctx *sgo.Context) {
     ctx.Text(200, "biu")
 }
 
-func login(ctx *sweetygo.Context) {
+func login(ctx *sgo.Context) {
     usr := ctx.Param("usr")
     pwd := ctx.Param("pwd")
     if usr == "Amyang" && pwd == "biu" {
@@ -120,26 +120,26 @@ func login(ctx *sweetygo.Context) {
     ctx.JSON(200, 0, "username or password error", nil)
 }
 
-func api(ctx *sweetygo.Context) {
+func api(ctx *sgo.Context) {
     ctx.JSON(200, 1, "success", map[string]string{"version": "1.1"})
 }
 
-func hello(ctx *sweetygo.Context) {
+func hello(ctx *sgo.Context) {
     usr := ctx.Get("userInfo").(*jwt.Token)
     claims := usr.Claims.(jwt.MapClaims)
     name := claims["name"].(string)
     ctx.Text(200, "Hello "+name)
 }
 
-func usr(ctx *sweetygo.Context) {
+func usr(ctx *sgo.Context) {
     ctx.Text(200, "Welcome home, "+ctx.Param("user"))
 }
 
 ```
 
-![example](https://raw.githubusercontent.com/AmyangXYZ/sweetygo/master/example/example.png)
+![example](https://raw.githubusercontent.com/AmyangXYZ/sgo/master/example/example.png)
 
-My [Blog](https://amyang.xyz) is also powered by SweetyGo.
+My [Blog](https://amyang.xyz) is also powered by SGo.
 
 ## License
 

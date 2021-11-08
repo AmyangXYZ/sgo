@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/AmyangXYZ/sweetygo"
+	"github.com/AmyangXYZ/sgo"
 )
 
 // CORSOpt is options of CORS middleware.
@@ -15,8 +15,8 @@ type CORSOpt struct {
 }
 
 // CORS returns a Cross-Origin Resource Sharing (CORS) middleware.
-func CORS(opt CORSOpt) sweetygo.HandlerFunc {
-	return func(ctx *sweetygo.Context) error {
+func CORS(opt CORSOpt) sgo.HandlerFunc {
+	return func(ctx *sgo.Context) error {
 		if opt.Skipper == nil {
 			opt.Skipper = DefaultSkipper
 		}

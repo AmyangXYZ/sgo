@@ -6,13 +6,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AmyangXYZ/sweetygo"
+	"github.com/AmyangXYZ/sgo"
 )
 
-// Logger implements SweetyGo.Middleware's interface.
-func Logger(out io.Writer, skipper Skipper) sweetygo.HandlerFunc {
-	logger := log.New(out, "*SweetyGo*", 0)
-	return func(ctx *sweetygo.Context) error {
+// Logger implements SGo.Middleware's interface.
+func Logger(out io.Writer, skipper Skipper) sgo.HandlerFunc {
+	logger := log.New(out, "*SGo*", 0)
+	return func(ctx *sgo.Context) error {
 		if skipper(ctx) == true {
 			ctx.Next()
 			return nil

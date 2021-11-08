@@ -1,4 +1,4 @@
-package sweetygo
+package sgo
 
 import (
 	"bytes"
@@ -12,9 +12,9 @@ import (
 	"sync"
 )
 
-// Context provide a HTTP context for SweetyGo.
+// Context provide a HTTP context for SGo.
 type Context struct {
-	sg           *SweetyGo
+	sg           *SGo
 	Req          *http.Request
 	Resp         *responseWriter
 	handlers     []HandlerFunc
@@ -24,7 +24,7 @@ type Context struct {
 }
 
 // NewContext .
-func NewContext(w http.ResponseWriter, r *http.Request, sg *SweetyGo) *Context {
+func NewContext(w http.ResponseWriter, r *http.Request, sg *SGo) *Context {
 	ctx := &Context{}
 	ctx.sg = sg
 	ctx.storeMutex = new(sync.RWMutex)
@@ -205,7 +205,7 @@ func (ctx *Context) JSONP(code int, callback string, data interface{}) error {
 	return nil
 }
 
-// Render sweetygo.templates with stored data.
+// Render sgo.templates with stored data.
 func (ctx *Context) Render(code int, tplname string) error {
 	buf := new(bytes.Buffer)
 	err := ctx.sg.Templates.Render(buf, tplname, ctx.Gets())

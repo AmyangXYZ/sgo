@@ -8,12 +8,12 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/AmyangXYZ/sweetygo"
+	"github.com/AmyangXYZ/sgo"
 )
 
 // Gzip compress.
-func Gzip(level int, skipper Skipper) sweetygo.HandlerFunc {
-	return func(ctx *sweetygo.Context) error {
+func Gzip(level int, skipper Skipper) sgo.HandlerFunc {
+	return func(ctx *sgo.Context) error {
 		if skipper(ctx) == true {
 			ctx.Next()
 			return nil
