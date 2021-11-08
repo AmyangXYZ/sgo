@@ -1,6 +1,2 @@
 github.com/AmyangXYZ/sgo v0.0.0-20191109002125-3013a29f6f03 h1:AdCIO7O0cl1aoUEaGmmE5P+LS/Flg+RrzWM/5QiogaI=
 github.com/AmyangXYZ/sgo v0.0.0-20191109002125-3013a29f6f03/go.mod h1:NSv6KkFcSwVF/kVenZneXA9jfT1CIClLMZgRDKQOc1U=
-github.com/AmyangXYZ/sweetygo v0.0.0-20191109002125-3013a29f6f03 h1:7h/bcNUEmSrrGeu1+/Ce31QmcKY9wRzR2CXhyazqDHc=
-github.com/AmyangXYZ/sweetygo v0.0.0-20191109002125-3013a29f6f03/go.mod h1:ieLFsixnepKbj2hW8Mv2E9AV3eOcdSzUS7JH6CQoBkA=
-github.com/dgrijalva/jwt-go v3.2.0+incompatible h1:7qlOGliEKZXTDg6OTjfoBKDXWrumCAMpl/TFQ4/5kLM=
-github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
