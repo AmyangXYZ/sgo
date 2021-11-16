@@ -25,7 +25,7 @@ func CORS(opt CORSOpt) sgo.HandlerFunc {
 			opt.AllowOrigins = []string{"*"}
 		}
 		if opt.AllowMethods == nil {
-			opt.AllowMethods = []string{http.MethodGet, http.MethodHead, http.MethodPut, http.MethodPatch, http.MethodPost, http.MethodDelete}
+			opt.AllowMethods = []string{http.MethodGet, http.MethodHead, http.MethodPut, http.MethodPatch, http.MethodPost, http.MethodDelete, http.MethodOptions}
 		}
 		if opt.AllowHeaders == nil {
 			opt.AllowHeaders = []string{"Origin", "Content-Type", "Accept"}
