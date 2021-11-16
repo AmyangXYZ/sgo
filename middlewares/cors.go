@@ -12,6 +12,7 @@ type CORSOpt struct {
 	Skipper      Skipper
 	AllowOrigins []string
 	AllowMethods []string
+	AllowHeaders []string
 }
 
 // CORS returns a Cross-Origin Resource Sharing (CORS) middleware.
@@ -26,16 +27,21 @@ func CORS(opt CORSOpt) sgo.HandlerFunc {
 		if opt.AllowMethods == nil {
 			opt.AllowMethods = []string{http.MethodGet, http.MethodHead, http.MethodPut, http.MethodPatch, http.MethodPost, http.MethodDelete}
 		}
+		if opt.AllowHeaders == nil {
+			opt.AllowHeaders = []string{"Origin", "Content-Type", "Accept"}
+		}
 
-		if opt.Skipper(ctx) == true {
+		if opt.Skipper(ctx) {
 			ctx.Next()
 			return nil
 		}
 		allowOrigins := strings.Join(opt.AllowOrigins, ",")
 		allowMethods := strings.Join(opt.AllowMethods, ",")
+		allowHeaders := strings.Join(opt.AllowHeaders, ",")
 
 		ctx.Resp.Header().Set("Access-Control-Allow-Origin", allowOrigins)
 		ctx.Resp.Header().Set("Access-Control-Allow-Methods", allowMethods)
+		ctx.Resp.Header().Set("Access-Control-Allow-Headers", allowHeaders)
 		ctx.Next()
 		return nil
 	}
