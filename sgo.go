@@ -25,6 +25,9 @@ type SGo struct {
 	Templates *Templates
 
 	Middlewares []HandlerFunc
+
+	// PreflightHandler is a dummy handler that handles preflight request when CORS
+	PreflightHandler func(ctx *Context) error
 }
 
 // New SGo App.
@@ -43,7 +46,7 @@ func New() *SGo {
 			return NewContext(nil, nil, sg)
 		},
 	}
-
+	sg.PreflightHandler = func(ctx *Context) error { return ctx.Text(200, "") }
 	return sg
 }
 

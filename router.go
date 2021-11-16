@@ -118,8 +118,3 @@ func (sg *SGo) Any(path string, handler HandlerFunc) {
 		sg.Handle(m, path, handler)
 	}
 }
-
-// PreflightHandler handles preflight request when CORS
-func (ctx *Context) PreflightHandler() error {
-	return ctx.Text(200, "")
-}
