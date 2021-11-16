@@ -10,6 +10,9 @@ import (
 // HandlerFunc context handler func
 type HandlerFunc func(*Context) error
 
+// PreflightHandler is a dummy handler that handles preflight request when CORS
+var PreflightHandler = func(ctx *Context) error { return ctx.Text(200, "") }
+
 // SGo is Suuuuuuuuper Sweetie!
 type SGo struct {
 	// Router is based on a radix/trie tree.
@@ -25,9 +28,6 @@ type SGo struct {
 	Templates *Templates
 
 	Middlewares []HandlerFunc
-
-	// PreflightHandler is a dummy handler that handles preflight request when CORS
-	PreflightHandler func(ctx *Context) error
 }
 
 // New SGo App.
@@ -46,7 +46,6 @@ func New() *SGo {
 			return NewContext(nil, nil, sg)
 		},
 	}
-	sg.PreflightHandler = func(ctx *Context) error { return ctx.Text(200, "") }
 	return sg
 }
 
