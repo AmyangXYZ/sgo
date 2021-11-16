@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -27,7 +29,8 @@ func main() {
 
 	app.GET("/api/boottime", getBootTime)
 	app.GET("/ws/comm", wsComm)
-	app.POST("/api/link/:name", postLink)
+	app.POST("/api/link/:name", postHandler)
+	app.OPTIONS("/api/link/:name", sgo.PreflightHandler)
 
 	if err := app.Run(addr); err != nil {
 		log.Fatal("Listen error", err)
@@ -80,6 +83,17 @@ func wsComm(ctx *sgo.Context) error {
 	}
 }
 
-func postLink(ctx *sgo.Context) error {
+func postHandler(ctx *sgo.Context) error {
+	// param request
+	fmt.Println(ctx.Params)
+	// json body request
+	body, err := ioutil.ReadAll(ctx.Req.Body)
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(body))
+	var data map[string]interface{}
+	json.Unmarshal(body, &data)
+
 	return ctx.Text(200, "xx")
 }

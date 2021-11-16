@@ -38,7 +38,7 @@ func NotFoundHandler(ctx *Context) error {
 
 // MethodNotAllowedHandler .
 func MethodNotAllowedHandler(ctx *Context) error {
-	http.Error(ctx.Resp, "Method Not Allowed", 405)
+	http.Error(ctx.Resp, "Method Not Allowed", http.StatusMethodNotAllowed)
 	return nil
 }
 
@@ -117,4 +117,9 @@ func (sg *SGo) Any(path string, handler HandlerFunc) {
 	for _, m := range methods {
 		sg.Handle(m, path, handler)
 	}
+}
+
+// PreflightHandler handles preflight request when CORS
+func (ctx *Context) PreflightHandler() error {
+	return ctx.Text(200, "")
 }
